@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class PlayerHandler extends Thread {
     DataInputStream dis;
     PrintStream ps;
-    static Vector<PlayerHandler> clientsVector = new Vector<PlayerHandler>();
+    static public Vector<PlayerHandler> clientsVector = new Vector<PlayerHandler>();
     public PlayerHandler(Socket cs){
         try {
             dis = new DataInputStream(cs.getInputStream());

@@ -389,6 +389,9 @@ public  class ServerGUI extends GridPane {
         if(th ==null){
             th = new Thread(() -> {
                 serverClass = new ServerClass();
+                while(true){
+                    online_num.setText(String.valueOf(PlayerHandler.clientsVector.size()));
+                }
             });
           th.start();
         }
