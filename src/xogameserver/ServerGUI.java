@@ -1,5 +1,7 @@
 package xogameserver;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
@@ -14,7 +16,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public  class ServerGUI extends GridPane {
-
+    static ServerClass  serverClass;
+    static Thread th;
     protected final ColumnConstraints columnConstraints;
     protected final RowConstraints rowConstraints;
     protected final RowConstraints rowConstraints0;
@@ -184,7 +187,13 @@ public  class ServerGUI extends GridPane {
         button_start.setPrefWidth(161.0);
         button_start.setText("Start");
         borderPane0.setCenter(anchorPane);
-
+        button_start.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
+            if(serverClass == null){
+                startServer();
+            }
+            button_start.setDisable(true);
+            button_stop.setDisable(false);
+        });
         GridPane.setColumnIndex(borderPane1, 1);
         borderPane1.setPrefHeight(200.0);
         borderPane1.setPrefWidth(200.0);
@@ -203,6 +212,14 @@ public  class ServerGUI extends GridPane {
         button_stop.setPrefHeight(25.0);
         button_stop.setPrefWidth(161.0);
         button_stop.setText("Stop");
+        button_stop.setDisable(true);
+        button_stop.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
+            if(serverClass != null){
+                serverClass.stop();
+            }
+            button_start.setDisable(false);
+            button_stop.setDisable(true);
+        });
         borderPane1.setCenter(anchorPane0);
 
         GridPane.setRowIndex(gridPane1, 2);
@@ -367,5 +384,13 @@ public  class ServerGUI extends GridPane {
         seriesOffline.getData().add(new XYChart.Data("Offline",10));
         bc.getData().addAll(seriesOnline,seriesOffline);
 
+    }
+    private void startServer(){
+        if(th ==null){
+            th = new Thread(() -> {
+                serverClass = new ServerClass();
+            });
+          th.start();
+        }
     }
 }
