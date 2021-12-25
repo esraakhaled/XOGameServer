@@ -1,5 +1,12 @@
 package xogameserver;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
@@ -13,8 +20,9 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-public  class ServerGUI extends GridPane {
+public class ServerGUI extends GridPane {
 
+    private DataAccessLayer dataAccessLayer;
     protected final ColumnConstraints columnConstraints;
     protected final RowConstraints rowConstraints;
     protected final RowConstraints rowConstraints0;
@@ -60,7 +68,9 @@ public  class ServerGUI extends GridPane {
     protected final BarChart chart;
 
     public ServerGUI() {
-
+        //
+        DataAccessLayer dataAccessLayer=DataAccessLayer.openConnection();
+       
         columnConstraints = new ColumnConstraints();
         rowConstraints = new RowConstraints();
         rowConstraints0 = new RowConstraints();
@@ -357,15 +367,17 @@ public  class ServerGUI extends GridPane {
         getChildren().add(gridPane);
         getChildren().add(chart);
         //
-         final BarChart<String,Number> bc =chart;
-         XYChart.Series seriesOnline = new XYChart.Series();
-        seriesOnline.setName("Online");       
-        seriesOnline.getData().add(new XYChart.Data("Online",25));
-       
-         XYChart.Series seriesOffline = new XYChart.Series();
-        seriesOffline.setName("Offline");       
-        seriesOffline.getData().add(new XYChart.Data("Offline",10));
-        bc.getData().addAll(seriesOnline,seriesOffline);
+        final BarChart<String, Number> bc = chart;
+        XYChart.Series seriesOnline = new XYChart.Series();
+        seriesOnline.setName("Online");
+        seriesOnline.getData().add(new XYChart.Data("Online", 25));
 
+        XYChart.Series seriesOffline = new XYChart.Series();
+        seriesOffline.setName("Offline");
+        seriesOffline.getData().add(new XYChart.Data("Offline", 10));
+        bc.getData().addAll(seriesOnline, seriesOffline);
+         
+        
+    
     }
 }
