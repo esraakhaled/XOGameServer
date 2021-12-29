@@ -16,18 +16,69 @@ public class Player {
     private String password;
     private int score;
     private int numOfGames;
+    private boolean available;
+    private boolean online;
+    private int win;
+    private int lose;
+    private int draw;
 
-   
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
+    public int getWin() {
+        return win;
+    }
+
+    public void setWin(int win) {
+        this.win = win;
+    }
+
+    public int getLose() {
+        return lose;
+    }
+
+    public void setLose(int lose) {
+        this.lose = lose;
+    }
+
+    public int getDraw() {
+        return draw;
+    }
+
+    public void setDraw(int draw) {
+        this.draw = draw;
+    }
+
      public Player(String userName, String password) {
         this.userName = userName;
         this.password = password;
     }
     public Player(int id, String userName, String password, int score, int numOfGames) {
+        this(userName,password);
         this.id = id;
-        this.userName = userName;
-        this.password = password;
         this.score = score;
         this.numOfGames = numOfGames;
+    }
+      public Player(int id, String userName, String password, int score, int numOfGames,boolean available,boolean online,int win,int lose,int draw) {
+       this(id,userName,password,score,numOfGames);
+       this.available=available;
+       this.online=online;
+       this.lose=lose;
+       this.win=win;
+       this.draw=draw;
     }
     
     public void setId(int id){
@@ -60,4 +111,5 @@ public class Player {
     public String getPassword(){
         return password;
     }
+   
 }

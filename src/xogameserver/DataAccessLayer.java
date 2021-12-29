@@ -26,6 +26,10 @@ public class DataAccessLayer {
     private static final String PASSWORD = "password";
     private static final String SCORE = "score";
     private static final String NUMOFGAMES = "numberOfGames";
+    private static final String WIN = "win";
+    private static final String LOSE = "lose";
+    private static final String DRAW = "draw";
+
     private static Connection connection;
     static DataAccessLayer dataAccessLayer;
 
@@ -101,6 +105,7 @@ public class DataAccessLayer {
             }
         }
     }
+
     //TODO : close 
     public void closeConnection() throws SQLException {
         connection.close();
@@ -109,7 +114,7 @@ public class DataAccessLayer {
 
     public int getPlayerScore(String userName) {
         int score = 0;
-        PreparedStatement ps=null;
+        PreparedStatement ps = null;
         try {
             ps = connection.prepareStatement("SELECT " + SCORE + " FROM " + TABLE_NAME + " where " + USERNAME + " = ? ", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, userName);
@@ -121,7 +126,7 @@ public class DataAccessLayer {
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
             return -1;
-        }finally {
+        } finally {
             if (ps != null) {
                 try {
                     ps.close();
@@ -134,9 +139,9 @@ public class DataAccessLayer {
 
     public int getPlayerNumOfGames(String userName) {
         int numOfGames = 0;
-        PreparedStatement ps=null;
+        PreparedStatement ps = null;
         try {
-             ps = connection.prepareStatement("SELECT " + NUMOFGAMES + " FROM " + TABLE_NAME + " where " + NUMOFGAMES + " = ? ", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps = connection.prepareStatement("SELECT " + NUMOFGAMES + " FROM " + TABLE_NAME + " where " + NUMOFGAMES + " = ? ", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, userName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -146,7 +151,7 @@ public class DataAccessLayer {
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
             return -1;
-        }finally {
+        } finally {
             if (ps != null) {
                 try {
                     ps.close();
@@ -156,63 +161,131 @@ public class DataAccessLayer {
             }
         }
     }
-    
+
     // TODO: implment these methods
-    public int updatePlayerScore(String userName,int Score){
-        PreparedStatement ps=null;
-        try {
-             ps = connection.prepareStatement("update " + TABLE_NAME + " set "+ SCORE + " = ? where "+ USERNAME +" = ?");
-            ps.setInt(1, Score);
-            ps.setString(2, userName);
-             ps.executeUpdate();
-             return 1;
-        } catch (SQLException ex) {
-            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
-        }finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-
-        return -1;
-    }
-    public int updatePlayerGames(String userName,int numOfGames){
-          PreparedStatement ps=null;
-        try {
-             ps = connection.prepareStatement("update " + TABLE_NAME + " set "+ NUMOFGAMES + " = ? where "+ USERNAME +" = ?");
-            ps.setInt(1, numOfGames);
-            ps.setString(2, userName);
-             ps.executeUpdate();
-        } catch (SQLException ex) {
-            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
-        }finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-
-        return -1;
-    }
-    public boolean checkPlayer(String userName,String password){
-         boolean flag = false;
+    public int updatePlayerScore(String userName, int Score) {
         PreparedStatement ps = null;
         try {
-           // SELECT EXISTS(SELECT * FROM yourTableName WHERE yourCondition);
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set " + SCORE + " = ? where " + USERNAME + " = ?");
+            ps.setInt(1, Score);
+            ps.setString(2, userName);
+            ps.executeUpdate();
+            return 1;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
 
-            ps = connection.prepareStatement( "SELECT * FROM "+TABLE_NAME +" where "+ USERNAME +" = ? AND " + PASSWORD +" = ? ",ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        return -1;
+    }
+
+    public int updatePlayerGames(String userName, int numOfGames) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set " + NUMOFGAMES + " = ? where " + USERNAME + " = ?");
+            ps.setInt(1, numOfGames);
+            ps.setString(2, userName);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    public int updatePlayerWins(String userName, int win) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set " + WIN + " = ? where " + USERNAME + " = ?");
+            ps.setInt(1, win);
+            ps.setString(2, userName);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    public int updatePlayerLoses(String userName, int lose) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set " + LOSE + " = ? where " + USERNAME + " = ?");
+            ps.setInt(1, lose);
+            ps.setString(2, userName);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    public int updatePlayerDraw(String userName, int draw) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set " + DRAW + " = ? where " + USERNAME + " = ?");
+            ps.setInt(1, draw);
+            ps.setString(2, userName);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    public boolean checkPlayer(String userName, String password) {
+        boolean flag = false;
+        PreparedStatement ps = null;
+        try {
+            // SELECT EXISTS(SELECT * FROM yourTableName WHERE yourCondition);
+
+            ps = connection.prepareStatement("SELECT * FROM " + TABLE_NAME + " where " + USERNAME + " = ? AND " + PASSWORD + " = ? ", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, userName);
             ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-               flag=true;
+                flag = true;
             }
             return flag;
         } catch (SQLException ex) {
@@ -228,21 +301,25 @@ public class DataAccessLayer {
             }
         }
     }
-    public Player getPlayer(String userName){
-        Player p=null;
-        PreparedStatement ps=null;
+
+    
+    public Player getPlayer(String userName) {
+        Player p = null;
+        PreparedStatement ps = null;
         try {
             ps = connection.prepareStatement("SELECT *  FROM " + TABLE_NAME + " where " + USERNAME + " = ? ", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, userName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                p =new Player(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getInt(5));
+                p = new Player(rs.getInt(1), rs.getString(2), rs.getString(3),
+                        rs.getInt(4), rs.getInt(5), rs.getBoolean(6), rs.getBoolean(7),
+                        rs.getInt(8), rs.getInt(9), rs.getInt(10));
             }
             return p;
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
             return p;
-        }finally {
+        } finally {
             if (ps != null) {
                 try {
                     ps.close();
@@ -252,4 +329,8 @@ public class DataAccessLayer {
             }
         }
     }
+    public void logout(Player p){
+    }
+    
 }
+
