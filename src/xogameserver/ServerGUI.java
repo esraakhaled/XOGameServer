@@ -16,8 +16,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public  class ServerGUI extends GridPane {
-    static ServerClass  serverClass;
-    static Thread th;
     protected final ColumnConstraints columnConstraints;
     protected final RowConstraints rowConstraints;
     protected final RowConstraints rowConstraints0;
@@ -187,10 +185,14 @@ public  class ServerGUI extends GridPane {
         button_start.setPrefWidth(161.0);
         button_start.setText("Start");
         borderPane0.setCenter(anchorPane);
-        button_start.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
-            if(serverClass == null){
-                startServer();
+        Thread th = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                 GameServer.startServer();
             }
+        });
+        button_start.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
+            th.start();
             button_start.setDisable(true);
             button_stop.setDisable(false);
         });
@@ -214,9 +216,6 @@ public  class ServerGUI extends GridPane {
         button_stop.setText("Stop");
         button_stop.setDisable(true);
         button_stop.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
-            if(serverClass != null){
-                serverClass.stop();
-            }
             button_start.setDisable(false);
             button_stop.setDisable(true);
         });
@@ -384,16 +383,5 @@ public  class ServerGUI extends GridPane {
         seriesOffline.getData().add(new XYChart.Data("Offline",10));
         bc.getData().addAll(seriesOnline,seriesOffline);
 
-    }
-    private void startServer(){
-        if(th ==null){
-            th = new Thread(() -> {
-                serverClass = new ServerClass();
-                while(true){
-                    online_num.setText(String.valueOf(PlayerHandler.clientsVector.size()));
-                }
-            });
-          th.start();
-        }
     }
 }
