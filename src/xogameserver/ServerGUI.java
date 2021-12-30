@@ -188,7 +188,7 @@ public  class ServerGUI extends GridPane {
         Thread th = new Thread(new Runnable(){
             @Override
             public void run() {
-                 GameServer.startServer();
+                 GameServer game = new GameServer();
             }
         });
         button_start.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
@@ -382,6 +382,5 @@ public  class ServerGUI extends GridPane {
         seriesOffline.setName("Offline");       
         seriesOffline.getData().add(new XYChart.Data("Offline",10));
         bc.getData().addAll(seriesOnline,seriesOffline);
-
     }
 }

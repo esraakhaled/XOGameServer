@@ -8,7 +8,12 @@ package xogameserver;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import xogameserver.models.Player;
 
 /**
@@ -16,92 +21,43 @@ import xogameserver.models.Player;
  * @author Raiaan
  */
 public class Client extends Thread{
-    private Socket mSocket = null;
-    private DataInputStream mDataInputStream;
-    private DataOutputStream mDataOutputStream;
-    private Boolean mIsShutdownCalled =false;
-    Player mPlayer;
-    public final void init(Socket socket)throws IOException  {
-        if (socket == null)
-            throw new NullPointerException("Socket is NULL!");
-
-        mSocket = socket;
-        mDataInputStream = new DataInputStream(mSocket.getInputStream());
-        mDataOutputStream = new DataOutputStream(mSocket.getOutputStream());
-
+    DataInputStream dis;
+    PrintStream ps;
+    static Map<String, Client> clientsVector = new HashMap<String, Client>();
+    public Client(Socket cs){
+        try {
+            dis = new DataInputStream(cs.getInputStream());
+            ps = new PrintStream(cs.getOutputStream());
+            start();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
-
-    public final void send(String msg) throws IOException {
-        if (mDataOutputStream == null)
-            throw new IllegalStateException("Can not send msg!");
-
-        System.out.println("[send] attempt to send to client");
-        mDataOutputStream.writeUTF(msg);
-    }
-    public final String read() throws IOException {
-        if (mDataInputStream == null)
-            throw new IllegalStateException("Can not read msg!");
-
-        return mDataInputStream.readUTF();
-    }
-    @Override
-    public void run() {
-        while (!mIsShutdownCalled) {
+    public void run(){
+        while(true) {
+            String str;
             try {
-                System.out.println("Attempt to read from client");
-                String msg = read();
-                if (!msg.isEmpty()) {
-                    //handleMessageFromClient(msg);
+                str = dis.readUTF();
+                String []data = str.split(";");
+                if(Integer.parseInt(data[0]) == RoutingBase.login){
+                    if(true){
+                        Client.clientsVector.put(data[0], this);
+                        sendLoginMessage(data[0],data[1],data[2]);
+                    }
                 }
-        
-
-            } catch (Exception e) {
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
     }
-        public void shutdown() {
-        if (mDataInputStream != null) {
-            try {
-                mDataInputStream.close();
-                mDataInputStream = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        if (mDataOutputStream != null) {
-            try {
-                mDataOutputStream.close();
-                mDataOutputStream = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-                if (mSocket != null) {
-            try {
-                mSocket.close();
-                mSocket = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-//        try {
-//            set users to offline
-//            DatabaseHelper.updatePlayerStatus(mPlayer.email, Constants.PlayerStatus.OFFLINE);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-
-        //GameServer.onSomeClientDisconnected(mPlayer.email);
-
-        mIsShutdownCalled =true;
-
-        //mPlayer = null;
+    void sendLoginMessage(String key , String mail , String password){
+        Client.clientsVector.entrySet().stream()
+                .filter(map -> (map.getKey()).equals(key))
+                .forEach(map ->ps.println("your email is"+mail+"password is"+ password) ); 
     }
-     public void setPlayer(Player mPlayer) {
-        this.mPlayer = mPlayer;
-    }
+    void sendMessageToAll(String key,String msg){
+        Client.clientsVector.entrySet().stream()
+                .filter(map -> (map.getKey()).equals(key))
+                .forEach(map ->ps.println(msg) ); 
+     }
 }
