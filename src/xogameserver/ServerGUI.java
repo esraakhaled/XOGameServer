@@ -1,7 +1,6 @@
 package xogameserver;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
@@ -59,7 +58,8 @@ public  class ServerGUI extends GridPane {
     protected final CategoryAxis x;
     protected final NumberAxis y;
     protected final BarChart chart;
-
+    public static GameServer gameServer;
+    Boolean isGameServerStrarted;
     public ServerGUI() {
 
         columnConstraints = new ColumnConstraints();
@@ -105,7 +105,7 @@ public  class ServerGUI extends GridPane {
         x = new CategoryAxis();
         y = new NumberAxis();
         chart = new BarChart(x, y);
-
+        isGameServerStrarted = false;
         setMaxHeight(USE_PREF_SIZE);
         setMaxWidth(USE_PREF_SIZE);
         setMinHeight(USE_PREF_SIZE);
@@ -188,7 +188,10 @@ public  class ServerGUI extends GridPane {
         Thread th = new Thread(new Runnable(){
             @Override
             public void run() {
-                 GameServer game = new GameServer();
+               if(!isGameServerStrarted){
+                   gameServer = new GameServer();
+                   isGameServerStrarted = true;
+               }
             }
         });
         button_start.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
@@ -216,6 +219,7 @@ public  class ServerGUI extends GridPane {
         button_stop.setText("Stop");
         button_stop.setDisable(true);
         button_stop.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
+            GameServer.close();
             button_start.setDisable(false);
             button_stop.setDisable(true);
         });

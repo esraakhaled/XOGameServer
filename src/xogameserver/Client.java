@@ -27,17 +27,29 @@ public class Client extends Thread{
     //PrintStream ps;
     OutputStream os;
     InputStream is;
+    Socket cs;
     ObjectOutputStream objectOutputStream;
-    static Map<String, Client> clientsVector = new HashMap<String, Client>();
-    public Client(Socket cs){
+    public static Map<String, Client> clientsVector = new HashMap<String, Client>();
+    public Client(Socket _cs){
         try {
             //dis = new DataInputStream(cs.getInputStream());
             //ps = new PrintStream(cs.getOutputStream());
-            os = cs.getOutputStream();
-            is = cs.getInputStream();
+            os = _cs.getOutputStream();
+            is = _cs.getInputStream();
+            cs = _cs;
             start();
         } catch (IOException ex) {
             ex.printStackTrace();
+        }
+    }
+    public void closeConnection(){
+        try {
+            //to convert evert client state to offline
+            os.close();
+            is.close();
+            cs.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     public void run(){
