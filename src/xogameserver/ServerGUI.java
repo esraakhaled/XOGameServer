@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
@@ -66,7 +67,10 @@ public class ServerGUI extends GridPane {
     protected final CategoryAxis x;
     protected final NumberAxis y;
     protected final BarChart chart;
-    
+
+    public static GameServer gameServer;
+    Boolean isGameServerStrarted;
+
     public ServerGUI() {
         //
         DataAccessLayer dataAccessLayer = DataAccessLayer.openConnection();
@@ -114,7 +118,7 @@ public class ServerGUI extends GridPane {
         x = new CategoryAxis();
         y = new NumberAxis();
         chart = new BarChart(x, y);
-        
+        isGameServerStrarted = false;
         setMaxHeight(USE_PREF_SIZE);
         setMaxWidth(USE_PREF_SIZE);
         setMinHeight(USE_PREF_SIZE);
@@ -194,7 +198,20 @@ public class ServerGUI extends GridPane {
         button_start.setPrefWidth(161.0);
         button_start.setText("Start");
         borderPane0.setCenter(anchorPane);
-        
+        Thread th = new Thread(new Runnable(){
+            @Override
+            public void run() {
+               if(!isGameServerStrarted){
+                   gameServer = new GameServer();
+                   isGameServerStrarted = true;
+               }
+            }
+        });
+        button_start.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
+            th.start();
+            button_start.setDisable(true);
+            button_stop.setDisable(false);
+        });
         GridPane.setColumnIndex(borderPane1, 1);
         borderPane1.setPrefHeight(200.0);
         borderPane1.setPrefWidth(200.0);
@@ -213,6 +230,12 @@ public class ServerGUI extends GridPane {
         button_stop.setPrefHeight(25.0);
         button_stop.setPrefWidth(161.0);
         button_stop.setText("Stop");
+        button_stop.setDisable(true);
+        button_stop.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
+            GameServer.close();
+            button_start.setDisable(false);
+            button_stop.setDisable(true);
+        });
         borderPane1.setCenter(anchorPane0);
         
         GridPane.setRowIndex(gridPane1, 2);
@@ -366,7 +389,6 @@ public class ServerGUI extends GridPane {
         gridPane.getChildren().add(gridPane1);
         getChildren().add(gridPane);
         getChildren().add(chart);
-        //
         final BarChart<String, Number> bc = chart;
         XYChart.Series seriesOnline = new XYChart.Series();
         seriesOnline.setName("Online");
@@ -383,6 +405,10 @@ public class ServerGUI extends GridPane {
                dataAccessLayer.logout(new Player("ahme", "moh"));
             }
         });
-        
+        seriesOnline.setName("Online");       
+        seriesOnline.getData().add(new XYChart.Data("Online",25));
+        seriesOffline.setName("Offline");       
+        seriesOffline.getData().add(new XYChart.Data("Offline",10));
+        bc.getData().addAll(seriesOnline,seriesOffline);
     }
 }
