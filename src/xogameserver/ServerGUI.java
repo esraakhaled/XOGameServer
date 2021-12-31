@@ -390,6 +390,7 @@ public class ServerGUI extends GridPane {
         getChildren().add(gridPane);
         getChildren().add(chart);
         final BarChart<String, Number> bc = chart;
+        
         XYChart.Series seriesOnline = new XYChart.Series();
         seriesOnline.setName("Online");
         seriesOnline.getData().add(new XYChart.Data("Online", 25));
@@ -399,16 +400,7 @@ public class ServerGUI extends GridPane {
         seriesOffline.getData().add(new XYChart.Data("Offline", 10));
         bc.getData().addAll(seriesOnline, seriesOffline);
         
-        button_start.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-               dataAccessLayer.logout(new Player("ahme", "moh"));
-            }
-        });
-        seriesOnline.setName("Online");       
-        seriesOnline.getData().add(new XYChart.Data("Online",25));
-        seriesOffline.setName("Offline");       
-        seriesOffline.getData().add(new XYChart.Data("Offline",10));
-        bc.getData().addAll(seriesOnline,seriesOffline);
+     
+       
     }
 }

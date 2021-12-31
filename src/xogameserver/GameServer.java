@@ -23,6 +23,7 @@ public class GameServer {
             serverSocket = new ServerSocket(5005);
             while(true){
                 Socket s = serverSocket.accept();
+                System.out.println("ssss");
                 new Client(s);
             }
 
