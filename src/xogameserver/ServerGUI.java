@@ -21,7 +21,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class ServerGUI extends GridPane {
-
+    
     private DataAccessLayer dataAccessLayer;
     protected final ColumnConstraints columnConstraints;
     protected final RowConstraints rowConstraints;
@@ -66,11 +66,11 @@ public class ServerGUI extends GridPane {
     protected final CategoryAxis x;
     protected final NumberAxis y;
     protected final BarChart chart;
-
+    
     public ServerGUI() {
         //
-        DataAccessLayer dataAccessLayer=DataAccessLayer.openConnection();
-       
+        DataAccessLayer dataAccessLayer = DataAccessLayer.openConnection();
+        
         columnConstraints = new ColumnConstraints();
         rowConstraints = new RowConstraints();
         rowConstraints0 = new RowConstraints();
@@ -114,45 +114,45 @@ public class ServerGUI extends GridPane {
         x = new CategoryAxis();
         y = new NumberAxis();
         chart = new BarChart(x, y);
-
+        
         setMaxHeight(USE_PREF_SIZE);
         setMaxWidth(USE_PREF_SIZE);
         setMinHeight(USE_PREF_SIZE);
         setMinWidth(USE_PREF_SIZE);
         setPrefHeight(356.0);
         setPrefWidth(610.0);
-
+        
         columnConstraints.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints.setMinWidth(10.0);
         columnConstraints.setPrefWidth(100.0);
-
+        
         rowConstraints.setMinHeight(10.0);
         rowConstraints.setPrefHeight(30.0);
         rowConstraints.setVgrow(javafx.scene.layout.Priority.SOMETIMES);
-
+        
         rowConstraints0.setMinHeight(10.0);
         rowConstraints0.setPrefHeight(30.0);
         rowConstraints0.setVgrow(javafx.scene.layout.Priority.SOMETIMES);
-
+        
         columnConstraints0.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints0.setMinWidth(10.0);
         columnConstraints0.setPrefWidth(100.0);
-
+        
         rowConstraints1.setMinHeight(10.0);
         rowConstraints1.setPrefHeight(30.0);
         rowConstraints1.setVgrow(javafx.scene.layout.Priority.SOMETIMES);
-
+        
         rowConstraints2.setMinHeight(10.0);
         rowConstraints2.setPrefHeight(30.0);
         rowConstraints2.setVgrow(javafx.scene.layout.Priority.SOMETIMES);
-
+        
         rowConstraints3.setMinHeight(10.0);
         rowConstraints3.setPrefHeight(30.0);
         rowConstraints3.setVgrow(javafx.scene.layout.Priority.SOMETIMES);
-
+        
         borderPane.setPrefHeight(96.0);
         borderPane.setPrefWidth(682.0);
-
+        
         BorderPane.setAlignment(text, javafx.geometry.Pos.CENTER);
         text.setStrokeType(javafx.scene.shape.StrokeType.OUTSIDE);
         text.setStrokeWidth(0.0);
@@ -161,28 +161,28 @@ public class ServerGUI extends GridPane {
         text.setWrappingWidth(159.859375);
         text.setFont(new Font("System Bold", 24.0));
         borderPane.setCenter(text);
-
+        
         GridPane.setRowIndex(gridPane0, 1);
-
+        
         columnConstraints1.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints1.setMinWidth(10.0);
         columnConstraints1.setPrefWidth(100.0);
-
+        
         columnConstraints2.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints2.setMinWidth(10.0);
         columnConstraints2.setPrefWidth(100.0);
-
+        
         rowConstraints4.setMinHeight(10.0);
         rowConstraints4.setPrefHeight(30.0);
         rowConstraints4.setVgrow(javafx.scene.layout.Priority.SOMETIMES);
-
+        
         borderPane0.setPrefHeight(200.0);
         borderPane0.setPrefWidth(200.0);
-
+        
         BorderPane.setAlignment(anchorPane, javafx.geometry.Pos.CENTER);
         anchorPane.setPrefHeight(200.0);
         anchorPane.setPrefWidth(200.0);
-
+        
         AnchorPane.setBottomAnchor(button_start, 27.0);
         AnchorPane.setLeftAnchor(button_start, 59.0);
         AnchorPane.setRightAnchor(button_start, 73.0);
@@ -194,15 +194,15 @@ public class ServerGUI extends GridPane {
         button_start.setPrefWidth(161.0);
         button_start.setText("Start");
         borderPane0.setCenter(anchorPane);
-
+        
         GridPane.setColumnIndex(borderPane1, 1);
         borderPane1.setPrefHeight(200.0);
         borderPane1.setPrefWidth(200.0);
-
+        
         BorderPane.setAlignment(anchorPane0, javafx.geometry.Pos.CENTER);
         anchorPane0.setPrefHeight(200.0);
         anchorPane0.setPrefWidth(200.0);
-
+        
         AnchorPane.setBottomAnchor(button_stop, 27.0);
         AnchorPane.setLeftAnchor(button_stop, 59.0);
         AnchorPane.setRightAnchor(button_stop, 73.0);
@@ -214,36 +214,36 @@ public class ServerGUI extends GridPane {
         button_stop.setPrefWidth(161.0);
         button_stop.setText("Stop");
         borderPane1.setCenter(anchorPane0);
-
+        
         GridPane.setRowIndex(gridPane1, 2);
-
+        
         columnConstraints3.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints3.setMinWidth(10.0);
         columnConstraints3.setPrefWidth(100.0);
-
+        
         columnConstraints4.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints4.setMinWidth(10.0);
         columnConstraints4.setPrefWidth(100.0);
-
+        
         rowConstraints5.setMinHeight(10.0);
         rowConstraints5.setPrefHeight(30.0);
         rowConstraints5.setVgrow(javafx.scene.layout.Priority.SOMETIMES);
-
+        
         columnConstraints5.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints5.setMinWidth(10.0);
         columnConstraints5.setPrefWidth(100.0);
-
+        
         columnConstraints6.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints6.setMinWidth(10.0);
         columnConstraints6.setPrefWidth(100.0);
-
+        
         rowConstraints6.setMinHeight(10.0);
         rowConstraints6.setPrefHeight(30.0);
         rowConstraints6.setVgrow(javafx.scene.layout.Priority.SOMETIMES);
-
+        
         anchorPane1.setPrefHeight(200.0);
         anchorPane1.setPrefWidth(200.0);
-
+        
         AnchorPane.setBottomAnchor(text0, 22.0);
         AnchorPane.setLeftAnchor(text0, 20.0);
         AnchorPane.setRightAnchor(text0, 19.232421875);
@@ -256,11 +256,11 @@ public class ServerGUI extends GridPane {
         text0.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT);
         text0.setWrappingWidth(113.767578125);
         text0.setFont(new Font(14.0));
-
+        
         GridPane.setColumnIndex(anchorPane2, 1);
         anchorPane2.setPrefHeight(200.0);
         anchorPane2.setPrefWidth(200.0);
-
+        
         AnchorPane.setBottomAnchor(online_num, 42.0);
         AnchorPane.setLeftAnchor(online_num, 14.0);
         AnchorPane.setRightAnchor(online_num, 88.86328125);
@@ -272,24 +272,24 @@ public class ServerGUI extends GridPane {
         online_num.setText("5");
         online_num.setWrappingWidth(89.13671875);
         online_num.setFont(new Font(14.0));
-
+        
         GridPane.setColumnIndex(gridPane3, 1);
-
+        
         columnConstraints7.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints7.setMinWidth(10.0);
         columnConstraints7.setPrefWidth(100.0);
-
+        
         columnConstraints8.setHgrow(javafx.scene.layout.Priority.SOMETIMES);
         columnConstraints8.setMinWidth(10.0);
         columnConstraints8.setPrefWidth(100.0);
-
+        
         rowConstraints7.setMinHeight(10.0);
         rowConstraints7.setPrefHeight(30.0);
         rowConstraints7.setVgrow(javafx.scene.layout.Priority.SOMETIMES);
-
+        
         anchorPane3.setPrefHeight(200.0);
         anchorPane3.setPrefWidth(200.0);
-
+        
         AnchorPane.setBottomAnchor(text1, 22.0);
         AnchorPane.setLeftAnchor(text1, 20.0);
         AnchorPane.setRightAnchor(text1, 19.232421875);
@@ -302,11 +302,11 @@ public class ServerGUI extends GridPane {
         text1.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT);
         text1.setWrappingWidth(113.767578125);
         text1.setFont(new Font(14.0));
-
+        
         GridPane.setColumnIndex(anchorPane4, 1);
         anchorPane4.setPrefHeight(200.0);
         anchorPane4.setPrefWidth(200.0);
-
+        
         AnchorPane.setBottomAnchor(offline_num, 42.7373046875);
         AnchorPane.setLeftAnchor(offline_num, 51.0);
         AnchorPane.setRightAnchor(offline_num, 51.86328125);
@@ -318,16 +318,16 @@ public class ServerGUI extends GridPane {
         offline_num.setText("5");
         offline_num.setWrappingWidth(89.13671875);
         offline_num.setFont(new Font(14.0));
-
+        
         x.setLabel("label");
         x.setSide(javafx.geometry.Side.BOTTOM);
-
+        
         y.setAutoRanging(false);
         y.setLabel("number");
         y.setSide(javafx.geometry.Side.LEFT);
         GridPane.setRowIndex(chart, 1);
         chart.setTitle("Users");
-
+        
         getColumnConstraints().add(columnConstraints);
         getRowConstraints().add(rowConstraints);
         getRowConstraints().add(rowConstraints0);
@@ -371,13 +371,18 @@ public class ServerGUI extends GridPane {
         XYChart.Series seriesOnline = new XYChart.Series();
         seriesOnline.setName("Online");
         seriesOnline.getData().add(new XYChart.Data("Online", 25));
-
+        
         XYChart.Series seriesOffline = new XYChart.Series();
         seriesOffline.setName("Offline");
         seriesOffline.getData().add(new XYChart.Data("Offline", 10));
         bc.getData().addAll(seriesOnline, seriesOffline);
-         
         
-    
+        button_start.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+               dataAccessLayer.logout(new Player("ahme", "moh"));
+            }
+        });
+        
     }
 }

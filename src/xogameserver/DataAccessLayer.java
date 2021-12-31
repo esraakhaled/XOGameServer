@@ -10,6 +10,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.derby.jdbc.ClientDriver;
@@ -29,6 +30,8 @@ public class DataAccessLayer {
     private static final String WIN = "win";
     private static final String LOSE = "lose";
     private static final String DRAW = "draw";
+    private static final String available = "available";
+    private static final String online = "online";
 
     private static Connection connection;
     static DataAccessLayer dataAccessLayer;
@@ -302,7 +305,6 @@ public class DataAccessLayer {
         }
     }
 
-    
     public Player getPlayer(String userName) {
         Player p = null;
         PreparedStatement ps = null;
@@ -329,8 +331,77 @@ public class DataAccessLayer {
             }
         }
     }
-    public void logout(Player p){
-    }
-    
-}
+    // return null if there is problem in data base
 
+    public Vector<Player> getAvailablePlayers() {
+        Vector<Player> players = new Vector<>();
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("SELECT  * " + " FROM " + TABLE_NAME + " where " + available + " = true", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                players.add(new Player(rs.getInt(1), rs.getString(2), rs.getString(3),
+                        rs.getInt(4), rs.getInt(5), rs.getBoolean(6), rs.getBoolean(7),
+                        rs.getInt(8), rs.getInt(9), rs.getInt(10)));
+            }
+            return players;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+    // return null if there is problem in data base
+    public Vector<Player> getOfflinePlayers() {
+        Vector<Player> players = new Vector<>();
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("SELECT  * " + " FROM " + TABLE_NAME + " where " + online + " = false", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                players.add(new Player(rs.getInt(1), rs.getString(2), rs.getString(3),
+                        rs.getInt(4), rs.getInt(5), rs.getBoolean(6), rs.getBoolean(7),
+                        rs.getInt(8), rs.getInt(9), rs.getInt(10)));
+            }
+            return players;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+// 
+    public void logout(Player p) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set " + available + " = false  set " + online + " =false " + "where " + USERNAME + " = ?");
+            ps.setString(1,p.getUserName());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }    }
+
+}
