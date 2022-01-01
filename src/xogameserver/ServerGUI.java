@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -279,6 +280,7 @@ public class ServerGUI extends GridPane {
         text0.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT);
         text0.setWrappingWidth(113.767578125);
         text0.setFont(new Font(14.0));
+                
         
         GridPane.setColumnIndex(anchorPane2, 1);
         anchorPane2.setPrefHeight(200.0);
@@ -292,7 +294,13 @@ public class ServerGUI extends GridPane {
         online_num.setLayoutY(56.0);
         online_num.setStrokeType(javafx.scene.shape.StrokeType.OUTSIDE);
         online_num.setStrokeWidth(0.0);
-        online_num.setText("5");
+        
+       /* Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                online_num.setText(""+dataAccessLayer.getNumberOnlineUsers());
+            }
+        });*/
         online_num.setWrappingWidth(89.13671875);
         online_num.setFont(new Font(14.0));
         
@@ -338,9 +346,13 @@ public class ServerGUI extends GridPane {
         offline_num.setLayoutY(55.0);
         offline_num.setStrokeType(javafx.scene.shape.StrokeType.OUTSIDE);
         offline_num.setStrokeWidth(0.0);
-        offline_num.setText("5");
+        //offline_num.setText(""+(dataAccessLayer.getOfflinePlayers()).size());
         offline_num.setWrappingWidth(89.13671875);
         offline_num.setFont(new Font(14.0));
+        
+                offline_num.setText(""+dataAccessLayer.getPlayersOfflineNum());
+         
+        
         
         x.setLabel("label");
         x.setSide(javafx.geometry.Side.BOTTOM);
