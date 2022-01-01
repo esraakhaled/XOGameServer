@@ -8,6 +8,7 @@ package xogameserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,30 +17,34 @@ import java.util.logging.Logger;
  * @author Raiaan
  */
 public class GameServer {
-      public static ServerSocket serverSocket ;
+
+    public static ServerSocket serverSocket;
 
     public GameServer() {
         try {
             serverSocket = new ServerSocket(5005);
-            while(true){
+            while (true) {
                 Socket s = serverSocket.accept();
                 System.out.println("ssss");
                 new Client(s);
             }
 
+        } catch (SocketException ex) {
+            ex.printStackTrace();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
-    public static void close(){
-            try {
-                Client.clientsVector
-                        .entrySet()
-                        .stream()
-                        .forEach(item->item.getValue().closeConnection());
-                serverSocket.close();
-            } catch (IOException ex) {
-                Logger.getLogger(GameServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
+
+    public static void close() {
+        try {
+            Client.clientsVector
+                    .entrySet()
+                    .stream()
+                    .forEach(item -> item.getValue().closeConnection());
+            serverSocket.close();
+        } catch (IOException ex) {
+            Logger.getLogger(GameServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
