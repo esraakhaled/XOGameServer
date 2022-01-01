@@ -29,8 +29,7 @@ public class XOGameServer extends Application {
         stage.setScene(scene);
         stage.show();
         stage.setOnCloseRequest(event->{
-            GameServer.close();
-            Platform.exit();
+            CustomPopup.display((short)1);
         });
     }
 

@@ -8,6 +8,7 @@ package xogameserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,17 +27,21 @@ public class GameServer {
                 new Client(s);
             }
 
-        } catch (IOException ex) {
+        } catch(SocketException e){}
+        catch (IOException ex) {
             ex.printStackTrace();
         }
     }
     public static void close(){
             try {
-                Client.clientsVector
-                        .entrySet()
-                        .stream()
-                        .forEach(item->item.getValue().closeConnection());
-                serverSocket.close();
+                if(serverSocket !=null){
+                    //to handle database online user
+                    Client.clientsVector
+                            .entrySet()
+                            .stream()
+                            .forEach(item->item.getValue().closeConnection());
+                    serverSocket.close();
+                }
             } catch (IOException ex) {
                 Logger.getLogger(GameServer.class.getName()).log(Level.SEVERE, null, ex);
             }

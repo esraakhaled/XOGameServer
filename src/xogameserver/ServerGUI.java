@@ -232,7 +232,7 @@ public class ServerGUI extends GridPane {
         button_stop.setText("Stop");
         button_stop.setDisable(true);
         button_stop.addEventHandler(ActionEvent.ACTION, (ActionEvent event)->{
-            GameServer.close();
+            CustomPopup.display((short)0);
             button_start.setDisable(false);
             button_stop.setDisable(true);
         });

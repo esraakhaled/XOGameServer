@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -49,7 +50,6 @@ public class Client extends Thread{
             is.close();
             cs.close();
         } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     public void run(){
@@ -66,19 +66,6 @@ public class Client extends Thread{
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
-//            String str;
-//            try {
-//                str = dis.readUTF();
-//                String []data = str.split(";");
-//                if(Integer.parseInt(data[0]) == RoutingBase.login){
-//                    if(true){
-//                        Client.clientsVector.put(data[0], this);
-//                        sendLoginMessage(data[0],data[1],data[2]);
-//                    }
-//                }
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
         }
     }
     void sendLoginMessage(Login login){
@@ -90,11 +77,18 @@ public class Client extends Thread{
                     .forEach(map->{
                 try {
                     objectOutputStream.writeObject(p);
-                } catch (IOException ex) {
-                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                }catch(SocketException ex){
+                    this.closeConnection();
+                    Client.clientsVector.remove(login.getUserName());
+                }catch (IOException ex) {
                 }
             });
-        } catch (IOException ex) {
+        }
+        catch(SocketException ex){
+                    this.closeConnection();
+                    Client.clientsVector.remove(login.getUserName());
+        }
+        catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } 
     }
