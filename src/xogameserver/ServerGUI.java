@@ -74,6 +74,7 @@ public class ServerGUI extends GridPane {
 
     public ServerGUI() {
         //
+      
         DataAccessLayer dataAccessLayer = DataAccessLayer.openConnection();
         
         columnConstraints = new ColumnConstraints();
@@ -301,6 +302,7 @@ public class ServerGUI extends GridPane {
                 online_num.setText(""+dataAccessLayer.getNumberOnlineUsers());
             }
         });*/
+        online_num.setText(""+dataAccessLayer.getPlayersOnlineNum());
         online_num.setWrappingWidth(89.13671875);
         online_num.setFont(new Font(14.0));
         
@@ -350,7 +352,7 @@ public class ServerGUI extends GridPane {
         offline_num.setWrappingWidth(89.13671875);
         offline_num.setFont(new Font(14.0));
         
-                offline_num.setText(""+dataAccessLayer.getPlayersOfflineNum());
+       offline_num.setText(""+dataAccessLayer.getPlayersOfflineNum());
          
         
         
@@ -411,7 +413,7 @@ public class ServerGUI extends GridPane {
         seriesOffline.setName("Offline");
         seriesOffline.getData().add(new XYChart.Data("Offline", 10));
         bc.getData().addAll(seriesOnline, seriesOffline);
-        
+       
      
        
     }

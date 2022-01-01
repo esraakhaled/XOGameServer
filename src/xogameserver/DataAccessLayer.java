@@ -441,21 +441,36 @@ public class DataAccessLayer {
             }
         }
     }
-     /* public int getNumberOfflineUsers() {
-           Vector<Player> players =getOfflinePlayers();
-          int numOfOfflinePlayers = players.size();
-        return numOfOfflinePlayers;
-    }
-      public int getNumberOnlineUsers() {
-           Vector<Player> players =getOnlinePlayers();
-          int numOfOnlinePlayers = players.size();
-        return numOfOnlinePlayers;
-    }*/
+     
     public int getPlayersOfflineNum( ) {
         int numOfPlayers = 0;
         PreparedStatement ps = null;
         try {
             ps = connection.prepareStatement("SELECT count(*)  FROM  " + TABLE_NAME+ " where " + online + " = false", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                numOfPlayers = rs.getInt(1);
+            }
+            return numOfPlayers;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+            return -1;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+ public int getPlayersOnlineNum( ) {
+        int numOfPlayers = 0;
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("SELECT count(*)  FROM  " + TABLE_NAME+ " where " + online + " = true", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 numOfPlayers = rs.getInt(1);
