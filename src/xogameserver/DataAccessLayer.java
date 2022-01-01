@@ -286,7 +286,9 @@ public class DataAccessLayer {
         return -1;
     }
 
-    public boolean checkPlayer(String userName, String password) {
+    public boolean checkPlayer(Player p) {
+       String userName =p.getUserName();
+        String password=p.getPassword();
         boolean flag = false;
         PreparedStatement ps = null;
         try {

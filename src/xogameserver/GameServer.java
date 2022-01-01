@@ -22,7 +22,7 @@ public class GameServer {
 
     public GameServer() {
         try {
-            serverSocket = new ServerSocket(5005);
+            serverSocket = new ServerSocket(8080);
             while (true) {
                 Socket s = serverSocket.accept();
                 System.out.println("ssss");

@@ -24,6 +24,10 @@ public class Player implements Serializable{
     private int lose;
     private int draw;
 
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public boolean isAvailable() {
         return available;
     }
