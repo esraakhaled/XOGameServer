@@ -17,33 +17,39 @@ import java.util.logging.Logger;
  * @author Raiaan
  */
 public class GameServer {
-      public static ServerSocket serverSocket ;
+
+    public static ServerSocket serverSocket;
 
     public GameServer() {
         try {
             serverSocket = new ServerSocket(5005);
-            while(true){
+            while (true) {
                 Socket s = serverSocket.accept();
+                System.out.println("ssss");
                 new Client(s);
             }
 
-        } catch(SocketException e){}
-        catch (IOException ex) {
+        } catch (SocketException e) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
-    public static void close(){
-            try {
-                if(serverSocket !=null){
-                    //to handle database online user
-                    Client.clientsVector
-                            .entrySet()
-                            .stream()
-                            .forEach(item->item.getValue().closeConnection());
-                    serverSocket.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(GameServer.class.getName()).log(Level.SEVERE, null, ex);
+
+    public static void close() {
+        try {
+            if (serverSocket != null) {
+                //to handle database online user
+                Client.clientsVector
+                        .entrySet()
+                        .stream()
+                        .forEach(item -> item.getValue().closeConnection());
+                serverSocket.close();
             }
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
+
 }

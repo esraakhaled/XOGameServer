@@ -5,11 +5,14 @@
  */
 package xogameserver;
 
+import java.net.ConnectException;
+import serialize.models.Player;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLNonTransientConnectionException;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +42,12 @@ public class DataAccessLayer {
     private DataAccessLayer() {
         try {
             DriverManager.registerDriver(new ClientDriver());
-            connection = DriverManager.getConnection("jdbc:derby://localhost:1527/Game", "root", "root");
+
+            connection = DriverManager.getConnection("jdbc:derby://localhost:1527/GameDB", "root", "root");
+
+        } catch (SQLNonTransientConnectionException ex) {
+            // show some pop
+            System.out.println("ss");
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -111,7 +119,9 @@ public class DataAccessLayer {
 
     //TODO : close 
     public void closeConnection() throws SQLException {
-        connection.close();
+        if (connection != null) {
+            connection.close();
+        }
     }
     // for client api
 
@@ -386,11 +396,12 @@ public class DataAccessLayer {
         }
     }
 // 
+
     public void logout(Player p) {
         PreparedStatement ps = null;
         try {
             ps = connection.prepareStatement("update " + TABLE_NAME + " set " + available + " = false  set " + online + " =false " + "where " + USERNAME + " = ?");
-            ps.setString(1,p.getUserName());
+            ps.setString(1, p.getUserName());
             ps.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
@@ -402,6 +413,7 @@ public class DataAccessLayer {
                     Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }    }
+        }
+    }
 
 }

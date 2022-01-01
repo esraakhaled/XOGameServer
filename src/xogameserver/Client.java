@@ -70,7 +70,7 @@ public class Client extends Thread{
     }
     void sendLoginMessage(Login login){
         try {
-            Player p = new Player(login.getUserName(),1);
+            Player p = new Player(login.getUserName(),"1");
             objectOutputStream = new ObjectOutputStream(os);
             Client.clientsVector.entrySet().stream() 
                     .filter(map->(map.getKey()).equals(login.getUserName()))
