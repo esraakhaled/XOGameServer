@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import serialize.models.Login;
+import serialize.models.Connection;
 import serialize.models.Player;
 
 /**
@@ -60,6 +61,11 @@ public class Client extends Thread{
                 if(obj instanceof Login){
                     Login login = (Login)obj;
                     sendLoginMessage(login);
+                }
+                else if(obj instanceof Connection)
+                {
+                    Connection connection = (Connection)obj;
+                    System.out.println(connection.getSignal());
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
