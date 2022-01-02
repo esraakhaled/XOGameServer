@@ -67,7 +67,9 @@ public class Player implements Serializable{
     public void setDraw(int draw) {
         this.draw = draw;
     }
-
+    public Player(String userName){
+        this.userName=userName;
+    }
      public Player(String userName, String password) {
         this.userName = userName;
         this.password = password;
