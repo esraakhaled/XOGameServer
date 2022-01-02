@@ -36,7 +36,6 @@ public class Client extends Thread {
     ObjectOutputStream objectOutputStream;
     DataAccessLayer dataAccessLayer;
     public static Map<String, Client> clientsVector = new HashMap<String, Client>();
-    public static Map<String, Client> attempsUser = new HashMap<String, Client>();
 
     public Client(Socket _cs) {
         try {
@@ -47,7 +46,9 @@ public class Client extends Thread {
             cs = _cs;
             dataAccessLayer = DataAccessLayer.openConnection();
             start();
-        } catch (IOException ex) {
+        }catch(SocketException ex){
+            closeConnection();
+        }catch (IOException ex) {
             ex.printStackTrace();
         }
     }
@@ -59,8 +60,8 @@ public class Client extends Thread {
             is.close();
             cs.close();
             dataAccessLayer.closeConnection();
-        } catch (IOException ex) {
-
+        }
+        catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -80,10 +81,11 @@ public class Client extends Thread {
                     sendRegisterMessage(register);
                 } else if (obj instanceof Connection) {
                     Connection connection = (Connection) obj;
-                    //System.out.println(connection.getSignal());
                     sendSocketToIPScreen(connection);
                 }
-            } catch (IOException ex) {
+            } catch(SocketException ex){
+                closeConnection();
+            }catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -95,29 +97,22 @@ public class Client extends Thread {
         Player playerDB = null;
 
         try {
-//change
             Player playerLogin = new Player(login.getUserName(), login.getPassword());
             boolean status;
-// check if it exist in DB
             if (dataAccessLayer.checkPlayer(playerLogin)) {
                 status = true;
                 playerDB = dataAccessLayer.getPlayer(playerLogin.getUserName());
             } else {
                 status = false;
             }
-// get Player
-
-            /*
-Client.clientsVector.entrySet().stream()
-.filter(map -> (map.getKey()).equals(login.getUserName()))
-.forEach(map -> {  });
-             */
             try {
                 objectOutputStream = new ObjectOutputStream(os);
                 objectOutputStream.writeObject(playerDB);
                 objectOutputStream.flush();
-
-            } catch (IOException ex) {
+            }catch(SocketException ex){
+                closeConnection();
+                clientsVector.remove(playerDB.getUserName());
+            }catch (IOException ex) {
                 ex.printStackTrace();
             }
         } catch (SQLException ex) {
@@ -141,7 +136,6 @@ Client.clientsVector.entrySet().stream()
 
     void sendSocketToIPScreen(Connection connection) {
         connection = new Connection(1, 1);
-        // check if it exist in DB
         try {
             objectOutputStream = new ObjectOutputStream(os);
             objectOutputStream.writeObject(connection);

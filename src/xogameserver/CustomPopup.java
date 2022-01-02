@@ -43,13 +43,10 @@ public class CustomPopup {
         layout.setHgap(5); 
         subLayout.setVgap(5);
         subLayout.setHgap(5);
-        sureButton.setAlignment(Pos.BOTTOM_RIGHT);
-        cancelButton.setAlignment(Pos.BOTTOM_LEFT);
         layout.add(message, 0,0);
         subLayout.add(cancelButton, 0,0);
         subLayout.add(sureButton, 1,0);
         layout.add(subLayout,0,1);
-         
         Scene scene = new Scene(layout, 250, 90);          
         stage.setTitle("closing...");
         stage.setScene(scene);
