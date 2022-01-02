@@ -6,6 +6,7 @@
 package xogameserver;
 
 import java.io.IOException;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -13,6 +14,7 @@ import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import serialize.models.Player;
 
 /**
  *
@@ -37,6 +39,11 @@ public class XOGameServer extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        Vector <Player>v = new Vector<Player>(); 
+        DataAccessLayer dal = DataAccessLayer.openConnection();
+        v = dal.getTopPlayer();
+        for(Player p : v)
+            System.out.println(String.valueOf(p.getScore()));
         launch(args);
     }
     
