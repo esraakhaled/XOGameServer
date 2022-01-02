@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -73,6 +74,7 @@ public class ServerGUI extends GridPane {
 
     public ServerGUI() {
         //
+      
         DataAccessLayer dataAccessLayer = DataAccessLayer.openConnection();
         
         columnConstraints = new ColumnConstraints();
@@ -279,6 +281,7 @@ public class ServerGUI extends GridPane {
         text0.setTextAlignment(javafx.scene.text.TextAlignment.RIGHT);
         text0.setWrappingWidth(113.767578125);
         text0.setFont(new Font(14.0));
+                
         
         GridPane.setColumnIndex(anchorPane2, 1);
         anchorPane2.setPrefHeight(200.0);
@@ -292,7 +295,18 @@ public class ServerGUI extends GridPane {
         online_num.setLayoutY(56.0);
         online_num.setStrokeType(javafx.scene.shape.StrokeType.OUTSIDE);
         online_num.setStrokeWidth(0.0);
-        online_num.setText("5");
+        
+        try {
+            /* Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+            online_num.setText(""+dataAccessLayer.getNumberOnlineUsers());
+            }
+            });*/
+            online_num.setText(""+dataAccessLayer.getPlayersOnlineNum());
+        } catch (SQLException ex) {
+            online_num.setText("loading");
+        }
         online_num.setWrappingWidth(89.13671875);
         online_num.setFont(new Font(14.0));
         
@@ -338,9 +352,17 @@ public class ServerGUI extends GridPane {
         offline_num.setLayoutY(55.0);
         offline_num.setStrokeType(javafx.scene.shape.StrokeType.OUTSIDE);
         offline_num.setStrokeWidth(0.0);
-        offline_num.setText("5");
+        //offline_num.setText(""+(dataAccessLayer.getOfflinePlayers()).size());
         offline_num.setWrappingWidth(89.13671875);
         offline_num.setFont(new Font(14.0));
+        
+        try {
+            offline_num.setText(""+dataAccessLayer.getPlayersOfflineNum());
+        } catch (SQLException ex) {
+            offline_num.setText("loading");
+        }
+         
+        
         
         x.setLabel("label");
         x.setSide(javafx.geometry.Side.BOTTOM);
@@ -399,7 +421,7 @@ public class ServerGUI extends GridPane {
         seriesOffline.setName("Offline");
         seriesOffline.getData().add(new XYChart.Data("Offline", 10));
         bc.getData().addAll(seriesOnline, seriesOffline);
-        
+       
      
        
     }

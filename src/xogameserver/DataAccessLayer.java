@@ -68,13 +68,13 @@ public class DataAccessLayer {
      */
     public void registerPlayer(Player p) throws SQLException {
         PreparedStatement ps = null;
-            ps = connection.prepareStatement("INSERT INTO " + TABLE_NAME + " (USERNAME, PASSWORD) " + " VALUES(?,?)");
-            ps.setString(1, p.getUserName());
-            ps.setString(2, p.getPassword());
-            ps.executeUpdate();
-            if (ps != null) {
-                ps.close();
-            }
+        ps = connection.prepareStatement("INSERT INTO " + TABLE_NAME + " (USERNAME, PASSWORD) " + " VALUES(?,?)");
+        ps.setString(1, p.getUserName());
+        ps.setString(2, p.getPassword());
+        ps.executeUpdate();
+        if (ps != null) {
+            ps.close();
+        }
     }
 
     /*
@@ -84,17 +84,17 @@ public class DataAccessLayer {
     public int getPlayersnumber() throws SQLException {
         int numOfPlayers = 0;
         PreparedStatement ps = null;
-            ps = connection.prepareStatement("SELECT count(id) FROM " + TABLE_NAME, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                numOfPlayers = rs.getInt(1);
-            }
-            
-            if (ps != null) {
-                ps.close();
-            }
-            return numOfPlayers;
-        
+        ps = connection.prepareStatement("SELECT count(id) FROM " + TABLE_NAME, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            numOfPlayers = rs.getInt(1);
+        }
+
+        if (ps != null) {
+            ps.close();
+        }
+        return numOfPlayers;
+
     }
 
     //TODO : close 
@@ -108,89 +108,91 @@ public class DataAccessLayer {
     public int getPlayerScore(String userName) throws SQLException {
         int score = 0;
         PreparedStatement ps = null;
-            ps = connection.prepareStatement("SELECT " + SCORE + " FROM " + TABLE_NAME + " where " + USERNAME + " = ? ", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setString(1, userName);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                score = rs.getInt(1);
-            }
-            if (ps != null) {
-                ps.close();
-            }
-            return score;
+        ps = connection.prepareStatement("SELECT " + SCORE + " FROM " + TABLE_NAME + " where " + USERNAME + " = ? ", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ps.setString(1, userName);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            score = rs.getInt(1);
+        }
+        if (ps != null) {
+            ps.close();
+        }
+        return score;
     }
 
     public int getPlayerNumOfGames(String userName) throws SQLException {
         int numOfGames = 0;
         PreparedStatement ps = null;
-        
-            ps = connection.prepareStatement("SELECT " + NUMOFGAMES + " FROM " + TABLE_NAME + " where " + NUMOFGAMES + " = ? ", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setString(1, userName);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                numOfGames = rs.getInt(1);
-            }
-            if (ps != null) {
-                
-                ps.close();
-            }
-            return numOfGames;
-        
-            
+
+        ps = connection.prepareStatement("SELECT " + NUMOFGAMES + " FROM " + TABLE_NAME + " where " + NUMOFGAMES + " = ? ", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ps.setString(1, userName);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            numOfGames = rs.getInt(1);
+        }
+        if (ps != null) {
+
+            ps.close();
+        }
+        return numOfGames;
+
     }
 
     // TODO: implment these methods
     public void updatePlayerScore(String userName, int Score) throws SQLException {
         PreparedStatement ps = null;
-       
-            ps = connection.prepareStatement("update " + TABLE_NAME + " set " + SCORE + " = ? where " + USERNAME + " = ?");
-            ps.setInt(1, Score);
-            ps.setString(2, userName);
-            ps.executeUpdate();
-            if (ps != null) {
-                ps.close();
-            }
-  
+
+        ps = connection.prepareStatement("update " + TABLE_NAME + " set " + SCORE + " = ? where " + USERNAME + " = ?");
+        ps.setInt(1, Score);
+        ps.setString(2, userName);
+        ps.executeUpdate();
+        if (ps != null) {
+            ps.close();
+        }
+
     }
 // TODO: implment these methods
+
     public void updatePlayerStatusOnline(String userName) throws SQLException {
         PreparedStatement ps = null;
-       
-            ps = connection.prepareStatement("update " + TABLE_NAME + " set online = true where " + USERNAME + " = ?");
-            ps.setString(1, userName);
-            ps.executeUpdate();
-            if (ps != null) {
-                ps.close();
-            }
-  
+
+        ps = connection.prepareStatement("update " + TABLE_NAME + " set online = true where " + USERNAME + " = ?");
+        ps.setString(1, userName);
+        ps.executeUpdate();
+        if (ps != null) {
+            ps.close();
+        }
+
     }
-     public void updatePlayerStatusAvailable(String userName) throws SQLException {
+
+    public void updatePlayerStatusAvailable(String userName) throws SQLException {
         PreparedStatement ps = null;
-       
-            ps = connection.prepareStatement("update " + TABLE_NAME + " set available = true where " + USERNAME + " = ?");
-            ps.setString(1, userName);
-            ps.executeUpdate();
-            if (ps != null) {
-                ps.close();
-            }
-  
+
+        ps = connection.prepareStatement("update " + TABLE_NAME + " set available = true where " + USERNAME + " = ?");
+        ps.setString(1, userName);
+        ps.executeUpdate();
+        if (ps != null) {
+            ps.close();
+        }
+
     }
+
     public void updatePlayerGames(String userName, int numOfGames) throws SQLException {
         PreparedStatement ps = null;
-     
-            ps = connection.prepareStatement("update " + TABLE_NAME + " set " + NUMOFGAMES + " = ? where " + USERNAME + " = ?");
-            ps.setInt(1, numOfGames);
-            ps.setString(2, userName);
-            ps.executeUpdate();
-        
-            if (ps != null) {
-                
-                    ps.close();
-         
+
+        ps = connection.prepareStatement("update " + TABLE_NAME + " set " + NUMOFGAMES + " = ? where " + USERNAME + " = ?");
+        ps.setInt(1, numOfGames);
+        ps.setString(2, userName);
+        ps.executeUpdate();
+
+        if (ps != null) {
+
+            ps.close();
+
+        }
 
     }
 
-    }
     public void updatePlayerWins(String userName, int win) throws SQLException {
         PreparedStatement ps = null;
         ps = connection.prepareStatement("update " + TABLE_NAME + " set " + WIN + " = ? where " + USERNAME + " = ?");
@@ -210,9 +212,9 @@ public class DataAccessLayer {
         ps.setString(2, userName);
         ps.executeUpdate();
         if (ps != null) {
-            
-                ps.close();
-            
+
+            ps.close();
+
         }
         // handle if exception --> put -1
     }
@@ -237,7 +239,7 @@ public class DataAccessLayer {
         PreparedStatement ps = null;
 
         // SELECT EXISTS(SELECT * FROM yourTableName WHERE yourCondition);
-        ps = connection.prepareStatement("SELECT * FROM " + TABLE_NAME + " where " + USERNAME + " = ? AND " + PASSWORD + " = ?  And "+ online +" = false ", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ps = connection.prepareStatement("SELECT * FROM " + TABLE_NAME + " where " + USERNAME + " = ? AND " + PASSWORD + " = ?  And " + online + " = false ", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ps.setString(1, userName);
         ps.setString(2, password);
         ResultSet rs = ps.executeQuery();
@@ -250,7 +252,8 @@ public class DataAccessLayer {
         return flag;
 
     }
-      public boolean checkPlayerForRegister(Player p) throws SQLException {
+
+    public boolean checkPlayerForRegister(Player p) throws SQLException {
         String userName = p.getUserName().trim();
         String password = p.getPassword().trim();
         boolean flag = false;
@@ -325,6 +328,34 @@ public class DataAccessLayer {
     }
 
 // 
+    // return null if there is problem in data base
+    public Vector<Player> getOnlinePlayers() {
+        Vector<Player> players = new Vector<>();
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("SELECT  * " + " FROM " + TABLE_NAME + " where " + online + " = true", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                players.add(new Player(rs.getInt(1), rs.getString(2), rs.getString(3),
+                        rs.getInt(4), rs.getInt(5), rs.getBoolean(6), rs.getBoolean(7),
+                        rs.getInt(8), rs.getInt(9), rs.getInt(10)));
+            }
+            return players;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+// 
     public void logout(Player p) throws SQLException {
         PreparedStatement ps = null;
         ps = connection.prepareStatement("update " + TABLE_NAME + " set " + available + " = false  set " + online + " =false " + "where " + USERNAME + " = ?");
@@ -333,6 +364,34 @@ public class DataAccessLayer {
         if (ps != null) {
             ps.close();
         }
+    }
+
+    public int getPlayersOfflineNum() throws SQLException {
+        int numOfPlayers = 0;
+        PreparedStatement ps = null;
+        ps = connection.prepareStatement("SELECT count(*)  FROM  " + TABLE_NAME + " where " + online + " = false", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            numOfPlayers = rs.getInt(1);
+        }
+        if (ps != null) {
+            ps.close();
+        }
+        return numOfPlayers;
+    }
+
+    public int getPlayersOnlineNum() throws SQLException {
+        int numOfPlayers = 0;
+        PreparedStatement ps = null;
+        ps = connection.prepareStatement("SELECT count(*)  FROM  " + TABLE_NAME + " where " + online + " = true", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            numOfPlayers = rs.getInt(1);
+        }
+        if (ps != null) {
+            ps.close();
+        }
+        return numOfPlayers;
     }
 
 }
