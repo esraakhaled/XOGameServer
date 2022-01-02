@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import serialize.models.Connection;
 import serialize.models.Login;
 import serialize.models.Player;
 import serialize.models.Register;
@@ -78,6 +79,12 @@ public class Client extends Thread {
                     Register register = (Register) obj;
                     sendRegisterMessage(register);
                 }
+                else if(obj instanceof Connection)
+                {
+                    Connection connection = (Connection)obj;
+                    //System.out.println(connection.getSignal());
+                    sendSocketToIPScreen(connection);
+                }
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
@@ -128,6 +135,29 @@ public class Client extends Thread {
             dataAccessLayer.registerPlayer(p);
 
         }
+     void sendSocketToIPScreen(Connection connection) {
+        connection = new Connection(1,1);
+        // check if it exist in DB
+        try {
+            objectOutputStream = new ObjectOutputStream(os);
+              objectOutputStream.writeObject(connection);
+                
+                System.out.println("pass");
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+                
+                            
+                              
+                            
+            
+            }
+
+       
+
+
+    }
+     
 
     
-}
+
