@@ -21,6 +21,7 @@ import serialize.models.Connection;
 import serialize.models.Login;
 import serialize.models.Player;
 import serialize.models.Register;
+import serialize.models.RequestGame;
 
 /**
  *
@@ -83,6 +84,25 @@ public class Client extends Thread {
                     Connection connection = (Connection) obj;
                     //System.out.println(connection.getSignal());
                     sendSocketToIPScreen(connection);
+                } else if (obj instanceof RequestGame) {
+                    RequestGame reguestGame = (RequestGame) obj;
+                    switch (reguestGame.getGameResponse()) {
+                        case RequestGame.requestGame:
+                            // server send it 
+                            try {
+                                objectOutputStream = new ObjectOutputStream(os);
+                                objectOutputStream.writeObject(reguestGame);
+                                
+                            } catch (IOException ex) {
+                                // send error happens to users 
+                            }
+
+                            break;
+                        case RequestGame.acceptChallenge:
+                            break;
+                        case RequestGame.refuseChallenge:
+                            break;
+                    }
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
