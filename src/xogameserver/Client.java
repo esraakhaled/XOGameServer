@@ -35,6 +35,7 @@ public class Client extends Thread {
     DataAccessLayer dataAccessLayer;
     public static Map<String, Client> clientsVector = new HashMap<String, Client>();
     public static Map<String, Client> attempsUser = new HashMap<String, Client>();
+
     public Client(Socket _cs) {
         try {
             //dis = new DataInputStream(cs.getInputStream());
@@ -71,8 +72,7 @@ public class Client extends Thread {
                 if (obj instanceof Login) {
                     Login login = (Login) obj;
                     sendLoginMessage(login);
-                }
-                else if(obj instanceof Register){
+                } else if (obj instanceof Register) {
                     Register register = (Register) obj;
                     sendRegisterMessage(register);
                 }
@@ -85,44 +85,53 @@ public class Client extends Thread {
     }
 
     void sendLoginMessage(Login login) {
-        System.out.println("login donee");
-        System.out.println(login.getPassword());
-        Player p = new Player(login.getPassword(), login.getUserName());
-        // check if it exist in DB
-        if (dataAccessLayer.checkPlayer(p)) {
+            Player playerDB = null;
+
+        try {
+//change
+            Player playerLogin = new Player(login.getUserName(), login.getPassword());
+            boolean status;
+// check if it exist in DB
+            if (dataAccessLayer.checkPlayer(playerLogin)) {
+                status = true;
+                playerDB = dataAccessLayer.getPlayer(playerLogin.getUserName());
+            } else {
+                status = false;
+            }
+// get Player
+
+            /*
+Client.clientsVector.entrySet().stream()
+.filter(map -> (map.getKey()).equals(login.getUserName()))
+.forEach(map -> {  });
+             */
             try {
                 objectOutputStream = new ObjectOutputStream(os);
-                // get Player
-                Player p1= dataAccessLayer.getPlayer(p.getUserName());
-                //Client.clientsVector.entrySet().(p1.getUserName(),this);
-                Client.clientsVector.entrySet().stream()
-                        .filter(map -> (map.getKey()).equals(login.getUserName()))
-                        .forEach(map -> {
-                            try {
-                                objectOutputStream.writeObject(p1);
-                                objectOutputStream.flush();
-                                System.out.println("pass");
-                            } catch (IOException ex) {
-                                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        });
-            } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                objectOutputStream.writeObject(playerDB);
+                objectOutputStream.flush();
 
-        }else{
-            
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (SQLException ex) {
+                ex.printStackTrace();
+        }
+    }
+
+
+void sendRegisterMessage(Register register) {
+        Player p = new Player(register.getUserName(), register.getPassword());
+        try {
+            // check if it exist in DB or not
+            dataAccessLayer.registerPlayer(p);
+        
+
+} catch (SQLException ex) {
+            Logger.getLogger(Client.class
+.getName()).log(Level.SEVERE, null, ex);
+            //must return messgae there is an error or not by serlization
         }
 
     }
-     void sendRegisterMessage(Register register) {
 
-        Player p = new Player(register.getUserName(), register.getPassword());
-        // check if it exist in DB or not 
-       
-            dataAccessLayer.registerPlayer(p);
-
-        }
-
-    
 }
