@@ -43,11 +43,9 @@ public class DataAccessLayer {
         try {
             DriverManager.registerDriver(new ClientDriver());
 
-            connection = DriverManager.getConnection("jdbc:derby://localhost:1527/Game", "root", "root");
+            connection = DriverManager.getConnection("jdbc:derby://localhost:1527/GameDB", "root", "root");
 
         } catch (SQLNonTransientConnectionException ex) {
-            // show some pop
-            System.out.println("ss");
         } catch (SQLException ex) {
             Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
         }
