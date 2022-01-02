@@ -39,11 +39,6 @@ public class XOGameServer extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Vector <Player>v = new Vector<Player>(); 
-        DataAccessLayer dal = DataAccessLayer.openConnection();
-        v = dal.getTopPlayer();
-        for(Player p : v)
-            System.out.println(String.valueOf(p.getScore()));
         launch(args);
     }
     
