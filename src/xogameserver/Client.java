@@ -21,6 +21,8 @@ import serialize.models.Connection;
 import serialize.models.Login;
 import serialize.models.Player;
 import serialize.models.Register;
+import serialize.models.RequestGame;
+import serialize.models.RequestTopPlayers;
 
 /**
  *
@@ -28,14 +30,14 @@ import serialize.models.Register;
  */
 public class Client extends Thread {
 
-    //DataInputStream dis;
-    //PrintStream ps;
     OutputStream os;
     InputStream is;
     Socket cs;
     ObjectOutputStream objectOutputStream;
     DataAccessLayer dataAccessLayer;
     public static Map<String, Client> clientsVector = new HashMap<String, Client>();
+    // public static Map<String, Client> attempsUser = new HashMap<String, Client>();
+    Player playerDB = null;
 
     public Client(Socket _cs) {
         try {
@@ -46,9 +48,7 @@ public class Client extends Thread {
             cs = _cs;
             dataAccessLayer = DataAccessLayer.openConnection();
             start();
-        }catch(SocketException ex){
-            closeConnection();
-        }catch (IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
@@ -60,8 +60,8 @@ public class Client extends Thread {
             is.close();
             cs.close();
             dataAccessLayer.closeConnection();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
+
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -75,17 +75,39 @@ public class Client extends Thread {
                 Object obj = objectInputStream.readObject();
                 if (obj instanceof Login) {
                     Login login = (Login) obj;
+                    clientsVector.put(login.getUserName(), this);
                     sendLoginMessage(login);
                 } else if (obj instanceof Register) {
                     Register register = (Register) obj;
+                    clientsVector.put(register.getUserName(), this);
                     sendRegisterMessage(register);
                 } else if (obj instanceof Connection) {
                     Connection connection = (Connection) obj;
+                    //System.out.println(connection.getSignal());
                     sendSocketToIPScreen(connection);
+                } else if(obj instanceof RequestTopPlayers){
+                    getTopPlayers((RequestTopPlayers)obj);
+                }else if (obj instanceof RequestGame) {
+                    RequestGame reguestGame = (RequestGame) obj;
+                    switch (reguestGame.getGameResponse()) {
+                        case RequestGame.requestGame:
+                            // server send it 
+                            try {
+                                objectOutputStream = new ObjectOutputStream(os);
+                                objectOutputStream.writeObject(reguestGame);
+                                
+                            } catch (IOException ex) {
+                                // send error happens to users 
+                            }
+
+                            break;
+                        case RequestGame.acceptChallenge:
+                            break;
+                        case RequestGame.refuseChallenge:
+                            break;
+                    }
                 }
-            } catch(SocketException ex){
-                closeConnection();
-            }catch (IOException ex) {
+            } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -94,57 +116,108 @@ public class Client extends Thread {
     }
 
     void sendLoginMessage(Login login) {
-        Player playerDB = null;
-
+        boolean status = false;
+        playerDB = null;
         try {
             Player playerLogin = new Player(login.getUserName(), login.getPassword());
-            boolean status;
-            if (dataAccessLayer.checkPlayer(playerLogin)) {
+            if (dataAccessLayer.checkPlayerForLogin(playerLogin)) {
                 status = true;
                 playerDB = dataAccessLayer.getPlayer(playerLogin.getUserName());
+                dataAccessLayer.updatePlayerStatusAvailable(playerDB.getUserName());
+                dataAccessLayer.updatePlayerStatusOnline(playerDB.getUserName());
             } else {
                 status = false;
             }
-            try {
-                objectOutputStream = new ObjectOutputStream(os);
-                objectOutputStream.writeObject(playerDB);
-                objectOutputStream.flush();
-            }catch(SocketException ex){
-                closeConnection();
-                clientsVector.remove(playerDB.getUserName());
-            }catch (IOException ex) {
-                ex.printStackTrace();
+            Client.clientsVector.entrySet().stream()
+                    .filter(map -> (map.getKey()).equals(login.getUserName()))
+                    .forEach(map -> {
+
+                        try {
+                            objectOutputStream = new ObjectOutputStream(os);
+                            objectOutputStream.writeObject(playerDB);
+                            objectOutputStream.flush();
+                        } catch (IOException ex) {
+                            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    });
+            if (!status) {
+                clientsVector.remove(login.getUserName());
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     void sendRegisterMessage(Register register) {
-        Player p = new Player(register.getUserName(), register.getPassword());
+        boolean status = false;
+        playerDB = null;
         try {
-            // check if it exist in DB or not
-            dataAccessLayer.registerPlayer(p);
 
+            Player p = new Player(register.getUserName(), register.getPassword());
+            if (!dataAccessLayer.checkPlayerForRegister(p)) {
+                playerDB = p;
+                status = true;
+                try {
+                    dataAccessLayer.registerPlayer(p);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Client.class
+                            .getName()).log(Level.SEVERE, null, ex);
+                    //must return messgae there is an error or not by serlization
+                }
+            } else {
+                status = false;
+                playerDB = null;
+            }
+
+            Client.clientsVector.entrySet().stream()
+                    .filter(map -> (map.getKey()).equals(p.getUserName()))
+                    .forEach(map -> {
+
+                        try {
+                            objectOutputStream = new ObjectOutputStream(os);
+                            objectOutputStream.writeObject(playerDB);
+                            objectOutputStream.flush();
+                        } catch (IOException ex) {
+                            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    });
+            if (!status) {
+                clientsVector.remove(p.getUserName());
+            }
         } catch (SQLException ex) {
-            Logger.getLogger(Client.class
-                    .getName()).log(Level.SEVERE, null, ex);
-            //must return messgae there is an error or not by serlization
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
     void sendSocketToIPScreen(Connection connection) {
         connection = new Connection(1, 1);
+        // check if it exist in DB
         try {
             objectOutputStream = new ObjectOutputStream(os);
             objectOutputStream.writeObject(connection);
-
-            System.out.println("pass");
         } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Client.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+    void getTopPlayers(RequestTopPlayers r){
+        r.setTopPlayers(dataAccessLayer.getTopPlayer());
+        clientsVector.entrySet().stream()
+                .filter(item->item.getKey().equals(r.getPlayer_id()))
+                .forEach((item)->{
+                    try {
+                        objectOutputStream = new ObjectOutputStream(os);
+                        objectOutputStream.writeObject(r);
+                        objectOutputStream.flush();
+                    } catch(SocketException ex){
+                        closeConnection();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                });
     }
 
 }
