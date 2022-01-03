@@ -59,13 +59,9 @@ public class Client extends Thread {
             os.close();
             is.close();
             cs.close();
-            dataAccessLayer.closeConnection();
         } catch (IOException ex) {
-
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
 
     public void run() {
@@ -178,7 +174,6 @@ public class Client extends Thread {
                 } catch (SQLException ex) {
                     Logger.getLogger(Client.class
                             .getName()).log(Level.SEVERE, null, ex);
-                    //must return messgae there is an error or not by serlization
                 }
             } else {
                 status = false;

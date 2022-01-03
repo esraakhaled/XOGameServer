@@ -52,4 +52,20 @@ public class CustomPopup {
         stage.setScene(scene);
         stage.showAndWait();
     }
+    public static void databaseError(){
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        Text message = new Text("oops sorry something went wrong while connecting to database");
+        
+        GridPane layout = new GridPane();
+        layout.setPadding(new Insets(10, 10, 10, 10));
+        layout.setVgap(5); 
+        layout.setHgap(5); 
+        
+        layout.add(message, 0,0);
+        Scene scene = new Scene(layout, 250, 90);          
+        stage.setTitle("database not connected...");
+        stage.setScene(scene);
+        stage.showAndWait();
+}
 }
