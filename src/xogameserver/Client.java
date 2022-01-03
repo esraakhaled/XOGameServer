@@ -22,6 +22,7 @@ import serialize.models.Login;
 import serialize.models.Player;
 import serialize.models.Register;
 import serialize.models.RequestGame;
+import serialize.models.RequestTopPlayers;
 
 /**
  *
@@ -84,7 +85,9 @@ public class Client extends Thread {
                     Connection connection = (Connection) obj;
                     //System.out.println(connection.getSignal());
                     sendSocketToIPScreen(connection);
-                } else if (obj instanceof RequestGame) {
+                } else if(obj instanceof RequestTopPlayers){
+                    getTopPlayers((RequestTopPlayers)obj);
+                }else if (obj instanceof RequestGame) {
                     RequestGame reguestGame = (RequestGame) obj;
                     switch (reguestGame.getGameResponse()) {
                         case RequestGame.requestGame:
@@ -131,10 +134,7 @@ public class Client extends Thread {
         boolean status = false;
         playerDB = null;
         try {
-//change
             Player playerLogin = new Player(login.getUserName(), login.getPassword());
-
-// check if it exist in DB
             if (dataAccessLayer.checkPlayerForLogin(playerLogin)) {
                 status = true;
                 playerDB = dataAccessLayer.getPlayer(playerLogin.getUserName());
@@ -143,8 +143,6 @@ public class Client extends Thread {
             } else {
                 status = false;
             }
-// get Player
-
             Client.clientsVector.entrySet().stream()
                     .filter(map -> (map.getKey()).equals(login.getUserName()))
                     .forEach(map -> {
@@ -219,6 +217,22 @@ public class Client extends Thread {
                     .getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+    void getTopPlayers(RequestTopPlayers r){
+        r.setTopPlayers(dataAccessLayer.getTopPlayer());
+        clientsVector.entrySet().stream()
+                .filter(item->item.getKey().equals(r.getPlayer_id()))
+                .forEach((item)->{
+                    try {
+                        objectOutputStream = new ObjectOutputStream(os);
+                        objectOutputStream.writeObject(r);
+                        objectOutputStream.flush();
+                    } catch(SocketException ex){
+                        closeConnection();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                });
     }
 
 }

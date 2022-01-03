@@ -296,7 +296,9 @@ public class ServerGUI extends GridPane {
         online_num.setStrokeWidth(0.0);
 
         try {
-            online_num.setText("" + dataAccessLayer.getPlayersOnlineNum());
+ 
+            if(dataAccessLayer!= null)
+                online_num.setText("" + dataAccessLayer.getPlayersOnlineNum());
         } catch (SQLException ex) {
             online_num.setText("loading");
         }

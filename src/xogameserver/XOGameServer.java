@@ -6,6 +6,7 @@
 package xogameserver;
 
 import java.io.IOException;
+import java.util.Vector;
 import java.net.Inet4Address;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,6 +15,7 @@ import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import serialize.models.Player;
 
 /**
  *
