@@ -154,9 +154,11 @@ public class DataAccessLayer {
         Vector<Player> players = new Vector<>();
         PreparedStatement ps = null;
         try {
+            //SELECT * FROM ROOT.PLAYER order by score desc fetch first 10 rows only;
+             
             ps = connection.prepareStatement("SELECT  * " + " FROM " + TABLE_NAME + 
-                                                "ORDER BY " + SCORE + " desc"+
-                                                "LIMIT 10", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                                                " order by " + SCORE + " desc "+
+                                                "fetch first 10 rows only", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 players.add(new Player(rs.getInt(1), rs.getString(2), rs.getString(3),
