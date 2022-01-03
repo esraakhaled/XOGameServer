@@ -152,7 +152,51 @@ public class DataAccessLayer {
             }
   
     }
-
+// TODO: implment these methods
+    public void updatePlayerStatusOnline(String userName) throws SQLException {
+        PreparedStatement ps = null;
+       
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set online = true where " + USERNAME + " = ?");
+            ps.setString(1, userName);
+            ps.executeUpdate();
+            if (ps != null) {
+                ps.close();
+            }
+  
+    }
+     public void updatePlayerStatusOffLine(String userName) throws SQLException {
+        PreparedStatement ps = null;
+       
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set online = false where " + USERNAME + " = ?");
+            ps.setString(1, userName);
+            ps.executeUpdate();
+            if (ps != null) {
+                ps.close();
+            }
+  
+    }
+     public void updatePlayerStatusAvailable(String userName) throws SQLException {
+        PreparedStatement ps = null;
+       
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set available = true where " + USERNAME + " = ?");
+            ps.setString(1, userName);
+            ps.executeUpdate();
+            if (ps != null) {
+                ps.close();
+            }
+  
+    }
+     public void updatePlayerStatusNotAvailable(String userName) throws SQLException {
+        PreparedStatement ps = null;
+       
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set available = false where " + USERNAME + " = ?");
+            ps.setString(1, userName);
+            ps.executeUpdate();
+            if (ps != null) {
+                ps.close();
+            }
+  
+    }
     public void updatePlayerGames(String userName, int numOfGames) throws SQLException {
         PreparedStatement ps = null;
      
@@ -208,7 +252,27 @@ public class DataAccessLayer {
         // handle if exception --> put -1
     }
 
-    public boolean checkPlayer(Player p) throws SQLException {
+    public boolean checkPlayerForLogin(Player p) throws SQLException {
+        String userName = p.getUserName().trim();
+        String password = p.getPassword().trim();
+        boolean flag = false;
+        PreparedStatement ps = null;
+
+        // SELECT EXISTS(SELECT * FROM yourTableName WHERE yourCondition);
+        ps = connection.prepareStatement("SELECT * FROM " + TABLE_NAME + " where " + USERNAME + " = ? AND " + PASSWORD + " = ?  And "+ online +" = false ", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ps.setString(1, userName);
+        ps.setString(2, password);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            flag = true;
+        }
+        if (ps != null) {
+            ps.close();
+        }
+        return flag;
+
+    }
+      public boolean checkPlayerForRegister(Player p) throws SQLException {
         String userName = p.getUserName().trim();
         String password = p.getPassword().trim();
         boolean flag = false;
