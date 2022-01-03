@@ -164,7 +164,6 @@ public class Client extends Thread {
         boolean status = false;
         playerDB = null;
         try {
-
             Player p = new Player(register.getUserName(), register.getPassword());
             if (!dataAccessLayer.checkPlayerForRegister(p)) {
                 playerDB = p;
