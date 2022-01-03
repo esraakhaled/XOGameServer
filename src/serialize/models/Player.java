@@ -80,7 +80,7 @@ public class Player implements Serializable{
         this.score = score;
         this.numOfGames = numOfGames;
     }
-      public Player(int id, String userName, String password, int score, int numOfGames,boolean available,boolean online,int win,int lose,int draw) {
+      public Player(int id, String userName, String password,int numOfGames,int score,boolean available,boolean online,int win,int lose,int draw) {
        this(id,userName,password,score,numOfGames);
        this.available=available;
        this.online=online;

@@ -150,7 +150,7 @@ public class DataAccessLayer {
         }
 
     }
-        public Vector<Player> getTopPlayer() {
+     public Vector<Player> getTopPlayer() {
         Vector<Player> players = new Vector<>();
         PreparedStatement ps = null;
         try {
