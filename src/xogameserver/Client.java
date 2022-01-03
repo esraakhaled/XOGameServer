@@ -23,6 +23,7 @@ import serialize.models.LogOut;
 import serialize.models.Login;
 import serialize.models.Player;
 import serialize.models.Register;
+import serialize.models.RequestGame;
 
 /**
  *
@@ -61,13 +62,9 @@ public class Client extends Thread {
             os.close();
             is.close();
             cs.close();
-            dataAccessLayer.closeConnection();
         } catch (IOException ex) {
-
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
 
     public void run() {
@@ -87,10 +84,49 @@ public class Client extends Thread {
                     Connection connection = (Connection) obj;
                     //System.out.println(connection.getSignal());
                     sendSocketToIPScreen(connection);
+
                 } else if (obj instanceof LogOut) {
                     LogOut logOut = (LogOut) obj;
                     sendLogOutMessage(logOut);
                     clientsVector.remove(logOut.getUserName());
+
+                } else if(obj instanceof RequestTopPlayers){
+                    getTopPlayers((RequestTopPlayers)obj);
+                }else if (obj instanceof RequestGame) {
+                    RequestGame reguestGame = (RequestGame) obj;
+                    switch (reguestGame.getGameResponse()) {
+                        case RequestGame.requestGame:
+                            // server send it 
+                            try {
+                                objectOutputStream = new ObjectOutputStream(os);
+                                objectOutputStream.writeObject(reguestGame);
+                                objectInputStream=new ObjectInputStream(is);
+
+                            } catch (IOException ex) {
+                                // send error happens to users 
+                            }
+
+                            break;
+                        case RequestGame.acceptChallenge:
+                            try {
+                                objectOutputStream = new ObjectOutputStream(os);
+                                objectOutputStream.writeObject(reguestGame);
+
+                            } catch (IOException ex) {
+                                // send error happens to users 
+                            }
+                            break;
+                        case RequestGame.refuseChallenge:
+                            try {
+                                objectOutputStream = new ObjectOutputStream(os);
+                                objectOutputStream.writeObject(reguestGame);
+
+                            } catch (IOException ex) {
+                                // send error happens to users 
+                            }
+                            break;
+                    }
+
                 }
             } catch (EOFException EX) {
                 try {
@@ -130,10 +166,7 @@ public class Client extends Thread {
         boolean status = false;
         playerDB = null;
         try {
-//change
             Player playerLogin = new Player(login.getUserName(), login.getPassword());
-
-// check if it exist in DB
             if (dataAccessLayer.checkPlayerForLogin(playerLogin)) {
                 status = true;
                 playerDB = dataAccessLayer.getPlayer(playerLogin.getUserName());
@@ -142,8 +175,6 @@ public class Client extends Thread {
             } else {
                 status = false;
             }
-// get Player
-
             Client.clientsVector.entrySet().stream()
                     .filter(map -> (map.getKey()).equals(login.getUserName()))
                     .forEach(map -> {
@@ -169,7 +200,6 @@ public class Client extends Thread {
         boolean status = false;
         playerDB = null;
         try {
-
             Player p = new Player(register.getUserName(), register.getPassword());
             if (!dataAccessLayer.checkPlayerForRegister(p)) {
                 playerDB = p;
@@ -179,7 +209,6 @@ public class Client extends Thread {
                 } catch (SQLException ex) {
                     Logger.getLogger(Client.class
                             .getName()).log(Level.SEVERE, null, ex);
-                    //must return messgae there is an error or not by serlization
                 }
             } else {
                 status = false;
@@ -219,6 +248,23 @@ public class Client extends Thread {
         }
 
     }
+    void getTopPlayers(RequestTopPlayers r){
+        r.setTopPlayers(dataAccessLayer.getTopPlayer());
+        clientsVector.entrySet().stream()
+                .filter(item->item.getKey().equals(r.getPlayer_id()))
+                .forEach((item)->{
+                    try {
+                        objectOutputStream = new ObjectOutputStream(os);
+                        objectOutputStream.writeObject(r);
+                        objectOutputStream.flush();
+                    } catch(SocketException ex){
+                        closeConnection();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                });
+    }
+
 
     void sendLogOutMessage(LogOut logOut) {
         logOut = new LogOut(logOut.getUserName(), 1);
@@ -242,3 +288,6 @@ public class Client extends Thread {
     }
 
 }
+
+
+
