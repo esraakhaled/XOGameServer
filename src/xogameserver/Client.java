@@ -92,15 +92,30 @@ public class Client extends Thread {
                             try {
                                 objectOutputStream = new ObjectOutputStream(os);
                                 objectOutputStream.writeObject(reguestGame);
-                                
+                                objectInputStream=new ObjectInputStream(is);
+
                             } catch (IOException ex) {
                                 // send error happens to users 
                             }
 
                             break;
                         case RequestGame.acceptChallenge:
+                            try {
+                                objectOutputStream = new ObjectOutputStream(os);
+                                objectOutputStream.writeObject(reguestGame);
+
+                            } catch (IOException ex) {
+                                // send error happens to users 
+                            }
                             break;
                         case RequestGame.refuseChallenge:
+                            try {
+                                objectOutputStream = new ObjectOutputStream(os);
+                                objectOutputStream.writeObject(reguestGame);
+
+                            } catch (IOException ex) {
+                                // send error happens to users 
+                            }
                             break;
                     }
                 }
