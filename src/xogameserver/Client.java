@@ -91,15 +91,30 @@ public class Client extends Thread {
                             try {
                                 objectOutputStream = new ObjectOutputStream(os);
                                 objectOutputStream.writeObject(reguestGame);
-                                
+                                objectInputStream=new ObjectInputStream(is);
+
                             } catch (IOException ex) {
                                 // send error happens to users 
                             }
 
                             break;
                         case RequestGame.acceptChallenge:
+                            try {
+                                objectOutputStream = new ObjectOutputStream(os);
+                                objectOutputStream.writeObject(reguestGame);
+
+                            } catch (IOException ex) {
+                                // send error happens to users 
+                            }
                             break;
                         case RequestGame.refuseChallenge:
+                            try {
+                                objectOutputStream = new ObjectOutputStream(os);
+                                objectOutputStream.writeObject(reguestGame);
+
+                            } catch (IOException ex) {
+                                // send error happens to users 
+                            }
                             break;
                     }
                 }
@@ -149,7 +164,6 @@ public class Client extends Thread {
         boolean status = false;
         playerDB = null;
         try {
-
             Player p = new Player(register.getUserName(), register.getPassword());
             if (!dataAccessLayer.checkPlayerForRegister(p)) {
                 playerDB = p;
