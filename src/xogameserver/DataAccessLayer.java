@@ -204,6 +204,7 @@ public class DataAccessLayer {
     }
 
     public void updatePlayerStatusAvailable(String userName) throws SQLException {
+
         PreparedStatement ps = null;
 
         ps = connection.prepareStatement("update " + TABLE_NAME + " set available = true where " + USERNAME + " = ?");
