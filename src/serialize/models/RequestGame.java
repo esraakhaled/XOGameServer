@@ -11,9 +11,9 @@ public class RequestGame implements Serializable{
     public static final int acceptChallenge = 1;
     public static final int refuseChallenge = 2;
     String player1 , player2;
-    short gameResponse;
+    int gameResponse;
 
-    public RequestGame(String player1, String player2, short gameResponse) {
+    public RequestGame(String player1, String player2, int gameResponse) {
         this.player1 = player1;
         this.player2 = player2;
         this.gameResponse = gameResponse;
@@ -22,11 +22,11 @@ public class RequestGame implements Serializable{
     public RequestGame() {
     }
 
-    public short getGameResponse() {
+    public int getGameResponse() {
         return gameResponse;
     }
 
-    public void setGameResponse(short gameResponse) {
+    public void setGameResponse(int gameResponse) {
         this.gameResponse = gameResponse;
     }
 

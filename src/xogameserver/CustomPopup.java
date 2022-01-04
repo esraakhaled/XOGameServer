@@ -52,6 +52,7 @@ public class CustomPopup {
         stage.setScene(scene);
         stage.showAndWait();
     }
+    
     public static void databaseError(){
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
