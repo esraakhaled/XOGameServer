@@ -5,6 +5,7 @@
  */
 package xogameserver;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -18,11 +19,14 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import serialize.models.Connection;
+import serialize.models.LogOut;
 import serialize.models.Login;
 import serialize.models.Player;
 import serialize.models.Register;
 import serialize.models.RequestGame;
 import serialize.models.RequestProfileBase;
+import static xogameserver.Client.clientsVector;
+
 
 /**
  *
@@ -34,6 +38,7 @@ public class Client extends Thread {
     InputStream is;
     Socket cs;
     ObjectOutputStream objectOutputStream;
+    ObjectInputStream objectInputStream;
     DataAccessLayer dataAccessLayer;
     public static Map<String, Client> clientsVector = new HashMap<String, Client>();
     // public static Map<String, Client> attempsUser = new HashMap<String, Client>();
@@ -45,6 +50,7 @@ public class Client extends Thread {
             //ps = new PrintStream(cs.getOutputStream());
             os = _cs.getOutputStream();
             is = _cs.getInputStream();
+
             cs = _cs;
             dataAccessLayer = DataAccessLayer.openConnection();
             start();
@@ -61,13 +67,13 @@ public class Client extends Thread {
             cs.close();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
 
     public void run() {
         while (true) {
             try {
-                ObjectInputStream objectInputStream = new ObjectInputStream(is);
+                objectInputStream = new ObjectInputStream(is);
                 Object obj = objectInputStream.readObject();
                 if (obj instanceof Login) {
                     Login login = (Login) obj;
@@ -83,6 +89,10 @@ public class Client extends Thread {
                 } else if(obj instanceof RequestProfileBase){
                     System.out.println("correct routing");
                     getProfileData((RequestProfileBase)obj);
+                } else if (obj instanceof LogOut) {
+                    LogOut logOut = (LogOut) obj;
+                    sendLogOutMessage(logOut);
+                    clientsVector.remove(logOut.getUserName());
                 }else if (obj instanceof RequestGame) {
                     RequestGame requestGame = (RequestGame) obj;
                     switch (requestGame.getGameResponse()) {
@@ -97,7 +107,34 @@ public class Client extends Thread {
                             sendToUser(requestGame.getRequstedUserName(), requestGame);
                             break;
                     }
+
                 }
+            } catch (EOFException EX) {
+                try {
+                    is.close();
+                    os.close();
+                    cs.close();
+                    this.stop();
+                } catch (IOException ex) {
+                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } catch (SocketException ex) {
+                try {
+                    //  objectOutputStream.close();
+                    //  is.close();
+                    // os.close();
+                    cs.close();
+                    this.stop();
+
+                } catch (IOException ex1) {
+                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+                try {
+                    cs.close();
+                } catch (IOException ex1) {
+                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
@@ -106,7 +143,7 @@ public class Client extends Thread {
         }
     }
 
-    void sendLoginMessage(Login login) {
+   void sendLoginMessage(Login login) {
         boolean status = false;
         playerDB = null;
         try {
@@ -126,7 +163,6 @@ public class Client extends Thread {
         } catch (SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     void sendRegisterMessage(Register register) {
@@ -172,13 +208,29 @@ public class Client extends Thread {
     void getProfileData(RequestProfileBase r){
         r.setTopPlayers(dataAccessLayer.getTopPlayer());
         r.setOnlinePlayer(dataAccessLayer.getAvailablePlayers());
-        System.out.println(String.valueOf(r.getOnlinePlayer().size()));
-        System.out.println(String.valueOf(r.getOnlinePlayer().size()));
         sendToUser(r.getPlayerUserName(), r);
     }
-    
-    public void sendToUser(String user, Object message) {
+        void sendLogOutMessage(LogOut logOut) {
+        logOut = new LogOut(logOut.getUserName(), 1);
+        try {
 
+            dataAccessLayer.updatePlayerStatusNotAvailable(logOut.getUserName());
+            dataAccessLayer.updatePlayerStatusOffLine(logOut.getUserName());
+        } catch (SQLException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        try {
+            objectOutputStream = new ObjectOutputStream(os);
+            objectOutputStream.writeObject(logOut);
+            objectOutputStream.flush();
+
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+    public void sendToUser(String user, Object message) {
         clientsVector.entrySet().stream()
                 .filter(item -> item.getKey().equals(user))
                 .forEach((item) -> {
@@ -192,7 +244,6 @@ public class Client extends Thread {
                     }
 
                 });
-
     }
-
 }
+

@@ -206,6 +206,7 @@ public class DataAccessLayer {
     }
 
     public void updatePlayerStatusAvailable(String userName) throws SQLException {
+
         PreparedStatement ps = null;
 
         ps = connection.prepareStatement("update " + TABLE_NAME + " set available = true where " + USERNAME + " = ?");
@@ -306,14 +307,12 @@ public class DataAccessLayer {
 
     public boolean checkPlayerForRegister(Player p) throws SQLException {
         String userName = p.getUserName().trim();
-        String password = p.getPassword().trim();
         boolean flag = false;
         PreparedStatement ps = null;
 
         // SELECT EXISTS(SELECT * FROM yourTableName WHERE yourCondition);
-        ps = connection.prepareStatement("SELECT * FROM " + TABLE_NAME + " where " + USERNAME + " = ? AND " + PASSWORD + " = ? ", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ps = connection.prepareStatement("SELECT * FROM " + TABLE_NAME + " where " + USERNAME + " = ? ", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ps.setString(1, userName);
-        ps.setString(2, password);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
             flag = true;
