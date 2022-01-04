@@ -202,7 +202,6 @@ public class DataAccessLayer {
             }
   
     }
-     
 
     public void updatePlayerStatusAvailable(String userName) throws SQLException {
 
