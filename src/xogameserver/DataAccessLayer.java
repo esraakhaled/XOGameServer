@@ -191,6 +191,18 @@ public class DataAccessLayer {
 
     }
 
+     public void updatePlayerStatusOffLine(String userName) throws SQLException {
+        PreparedStatement ps = null;
+       
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set online = false where " + USERNAME + " = ?");
+            ps.setString(1, userName);
+            ps.executeUpdate();
+            if (ps != null) {
+                ps.close();
+            }
+  
+    }
+
     public void updatePlayerStatusAvailable(String userName) throws SQLException {
         PreparedStatement ps = null;
 
@@ -201,6 +213,17 @@ public class DataAccessLayer {
             ps.close();
         }
 
+    }
+     public void updatePlayerStatusNotAvailable(String userName) throws SQLException {
+        PreparedStatement ps = null;
+       
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set available = false where " + USERNAME + " = ?");
+            ps.setString(1, userName);
+            ps.executeUpdate();
+            if (ps != null) {
+                ps.close();
+            }
+  
     }
 
     public void updatePlayerGames(String userName, int numOfGames) throws SQLException {

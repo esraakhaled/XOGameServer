@@ -89,7 +89,6 @@ public class Client extends Thread {
                         case RequestGame.requestGame:
                             // server send it 
                             sendToUser(requestGame.getChoosePlayerUserName(), requestGame);
-
                             break;
                         case RequestGame.acceptChallenge:
                             sendToUser(requestGame.getRequstedUserName(), requestGame);
