@@ -190,7 +190,7 @@ public class DataAccessLayer {
         }
 
     }
-<<<<<<< HEAD
+
      public void updatePlayerStatusOffLine(String userName) throws SQLException {
         PreparedStatement ps = null;
        
@@ -202,11 +202,10 @@ public class DataAccessLayer {
             }
   
     }
-     public void updatePlayerStatusAvailable(String userName) throws SQLException {
-=======
+     
 
     public void updatePlayerStatusAvailable(String userName) throws SQLException {
->>>>>>> 8df3ea9c0d20114f6bf84d9bb107398f7343a2c5
+
         PreparedStatement ps = null;
 
         ps = connection.prepareStatement("update " + TABLE_NAME + " set available = true where " + USERNAME + " = ?");
@@ -217,7 +216,6 @@ public class DataAccessLayer {
         }
 
     }
-<<<<<<< HEAD
      public void updatePlayerStatusNotAvailable(String userName) throws SQLException {
         PreparedStatement ps = null;
        
@@ -229,9 +227,7 @@ public class DataAccessLayer {
             }
   
     }
-=======
 
->>>>>>> 8df3ea9c0d20114f6bf84d9bb107398f7343a2c5
     public void updatePlayerGames(String userName, int numOfGames) throws SQLException {
         PreparedStatement ps = null;
 
