@@ -12,21 +12,31 @@ import java.util.Vector;
  *
  * @author Raiaan
  */
-public class RequestTopPlayers implements Serializable{
+public class RequestProfileBase implements Serializable{
     String playerUserName;
     Vector<Player> topPlayers;
+    Vector<Player> onlinePlayer;
 
-    public RequestTopPlayers(String playerUserName, Vector<Player> topPlayers) {
-        this.playerUserName = playerUserName;
-        this.topPlayers = topPlayers;
+    public Vector<Player> getOnlinePlayer() {
+        return onlinePlayer;
     }
 
-    public String getPlayer_id() {
+    public void setOnlinePlayer(Vector<Player> onlinePlayer) {
+        this.onlinePlayer = onlinePlayer;
+    }
+    
+    public RequestProfileBase(String playerUserName, Vector<Player> topPlayers,Vector<Player> onlinePlayer){
+        this.playerUserName = playerUserName;
+        this.topPlayers = topPlayers;
+        this.onlinePlayer = onlinePlayer;
+    }
+
+    public String getPlayerUserName() {
         return playerUserName;
     }
 
-    public void setPlayer_id(String player_id) {
-        this.playerUserName = player_id;
+    public void setPlayerUserName(String playerUserName) {
+        this.playerUserName = playerUserName;
     }
 
     public Vector<Player> getTopPlayers() {

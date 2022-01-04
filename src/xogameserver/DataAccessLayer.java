@@ -191,14 +191,18 @@ public class DataAccessLayer {
 
     }
 
-    public void updatePlayerStatusAvailable(String userName) throws SQLException {
-        PreparedStatement ps = null;
-
-        ps = connection.prepareStatement("update " + TABLE_NAME + " set available = true where " + USERNAME + " = ?");
-        ps.setString(1, userName);
-        ps.executeUpdate();
-        if (ps != null) {
-            ps.close();
+    public void updatePlayerStatusAvailable(String userName){
+        try {
+            PreparedStatement ps = null;
+            
+            ps = connection.prepareStatement("update " + TABLE_NAME + " set available = true where " + USERNAME + " = ?");
+            ps.setString(1, userName);
+            ps.executeUpdate();
+            if (ps != null) {
+                ps.close();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -319,21 +323,25 @@ public class DataAccessLayer {
     }
     // return null if there is problem in data base
 
-    public Vector<Player> getAvailablePlayers() throws SQLException {
-        Vector<Player> players = new Vector<>();
-        PreparedStatement ps = null;
-
-        ps = connection.prepareStatement("SELECT  * " + " FROM " + TABLE_NAME + " where " + available + " = true", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            players.add(new Player(rs.getInt(1), rs.getString(2), rs.getString(3),
-                    rs.getInt(4), rs.getInt(5), rs.getBoolean(6), rs.getBoolean(7),
-                    rs.getInt(8), rs.getInt(9), rs.getInt(10)));
+    public Vector<Player> getAvailablePlayers() {
+        try {
+            Vector<Player> players = new Vector<>();
+            PreparedStatement ps = null;
+            ps = connection.prepareStatement("SELECT  * " + " FROM " + TABLE_NAME + " where " + available + " = true", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                players.add(new Player(rs.getInt(1), rs.getString(2), rs.getString(3),
+                        rs.getInt(4), rs.getInt(5), rs.getBoolean(6), rs.getBoolean(7),
+                        rs.getInt(8), rs.getInt(9), rs.getInt(10)));
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            return players;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataAccessLayer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (ps != null) {
-            ps.close();
-        }
-        return players;
+        return null;
     }
 
     // return null if there is problem in data base

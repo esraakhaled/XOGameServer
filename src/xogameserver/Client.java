@@ -22,7 +22,7 @@ import serialize.models.Login;
 import serialize.models.Player;
 import serialize.models.Register;
 import serialize.models.RequestGame;
-import serialize.models.RequestTopPlayers;
+import serialize.models.RequestProfileBase;
 
 /**
  *
@@ -79,10 +79,10 @@ public class Client extends Thread {
                     sendRegisterMessage(register);
                 } else if (obj instanceof Connection) {
                     Connection connection = (Connection) obj;
-                    //System.out.println(connection.getSignal());
                     sendSocketToIPScreen(connection);
-                } else if(obj instanceof RequestTopPlayers){
-                    getTopPlayers((RequestTopPlayers)obj);
+                } else if(obj instanceof RequestProfileBase){
+                    System.out.println("correct routing");
+                    getProfileData((RequestProfileBase)obj);
                 }else if (obj instanceof RequestGame) {
                     RequestGame reguestGame = (RequestGame) obj;
                     switch (reguestGame.getGameResponse()) {
@@ -212,10 +212,13 @@ public class Client extends Thread {
         }
 
     }
-    void getTopPlayers(RequestTopPlayers r){
+    void getProfileData(RequestProfileBase r){
         r.setTopPlayers(dataAccessLayer.getTopPlayer());
+        r.setOnlinePlayer(dataAccessLayer.getAvailablePlayers());
+        System.out.println(String.valueOf(r.getOnlinePlayer().size()));
+        System.out.println(String.valueOf(r.getOnlinePlayer().size()));
         clientsVector.entrySet().stream()
-                .filter(item->item.getKey().equals(r.getPlayer_id()))
+                .filter(item->item.getKey().equals(r.getPlayerUserName()))
                 .forEach((item)->{
                     try {
                         objectOutputStream = new ObjectOutputStream(os);
