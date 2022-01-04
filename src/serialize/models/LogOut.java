@@ -11,23 +11,21 @@ import java.io.Serializable;
  *
  * @author abdelrhman sayed
  */
-public class Connection implements Serializable{
-     int signal ;
-     int ack;
+public class LogOut implements Serializable{
+    private String userName;
+    private int ack;
 
-    public Connection(int signal, int ack) {
-        this.signal = signal;
+    public LogOut(String userName, int ack) {
+        this.userName = userName;
         this.ack = ack;
     }
 
-
-
-    public int getSignal() {
-        return signal;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setSignal(int signal) {
-        this.signal = signal;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public int getAck() {
@@ -37,7 +35,5 @@ public class Connection implements Serializable{
     public void setAck(int ack) {
         this.ack = ack;
     }
-
-    
     
 }

@@ -43,16 +43,29 @@ public class CustomPopup {
         layout.setHgap(5); 
         subLayout.setVgap(5);
         subLayout.setHgap(5);
-        sureButton.setAlignment(Pos.BOTTOM_RIGHT);
-        cancelButton.setAlignment(Pos.BOTTOM_LEFT);
         layout.add(message, 0,0);
         subLayout.add(cancelButton, 0,0);
         subLayout.add(sureButton, 1,0);
         layout.add(subLayout,0,1);
-         
         Scene scene = new Scene(layout, 250, 90);          
         stage.setTitle("closing...");
         stage.setScene(scene);
         stage.showAndWait();
     }
+    public static void databaseError(){
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        Text message = new Text("oops sorry something went wrong while connecting to database");
+        
+        GridPane layout = new GridPane();
+        layout.setPadding(new Insets(10, 10, 10, 10));
+        layout.setVgap(5); 
+        layout.setHgap(5); 
+        
+        layout.add(message, 0,0);
+        Scene scene = new Scene(layout, 250, 90);          
+        stage.setTitle("database not connected...");
+        stage.setScene(scene);
+        stage.showAndWait();
+}
 }
