@@ -11,21 +11,20 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.StreamCorruptedException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import serialize.models.Connection;
 import serialize.models.LogOut;
 import serialize.models.Login;
 import serialize.models.Connection;
 import serialize.models.Player;
 import serialize.models.Register;
 import serialize.models.RequestGame;
-import serialize.models.RequestTopPlayers;
+import serialize.models.RequestProfileBase;
 import static xogameserver.Client.clientsVector;
 
 /**
@@ -34,13 +33,14 @@ import static xogameserver.Client.clientsVector;
  */
 public class Client extends Thread {
 
+    Object obj;
     OutputStream os;
     InputStream is;
     Socket cs;
     ObjectOutputStream objectOutputStream;
     ObjectInputStream objectInputStream;
     DataAccessLayer dataAccessLayer;
-    public static Map<String, Client> clientsVector = new HashMap<String, Client>();
+    public static HashMap<String, Client> clientsVector = new HashMap<String, Client>();
     // public static Map<String, Client> attempsUser = new HashMap<String, Client>();
     Player playerDB = null;
 
@@ -48,10 +48,12 @@ public class Client extends Thread {
         try {
             //dis = new DataInputStream(cs.getInputStream());
             //ps = new PrintStream(cs.getOutputStream());
-            os = _cs.getOutputStream();
-            is = _cs.getInputStream();
-
             cs = _cs;
+            os = cs.getOutputStream();
+            is = cs.getInputStream();
+            objectOutputStream = new ObjectOutputStream(os);
+            objectInputStream = new ObjectInputStream(is);
+
             dataAccessLayer = DataAccessLayer.openConnection();
             start();
         } catch (IOException ex) {
@@ -61,59 +63,75 @@ public class Client extends Thread {
 
     public void closeConnection() {
         try {
-            //to convert evert client state to offline
             os.close();
             is.close();
             cs.close();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } 
+        }
     }
 
     public void run() {
         while (true) {
             try {
-                objectInputStream = new ObjectInputStream(is);
-                Object obj = objectInputStream.readObject();
+//                objectOutputStream = new ObjectOutputStream(os);
+//               objectInputStream = new ObjectInputStream(is);
+
+                obj = objectInputStream.readObject();
                 if (obj instanceof Login) {
+                    System.out.println("login enter 7e");
                     Login login = (Login) obj;
                     clientsVector.put(login.getUserName(), this);
+                    System.out.println(clientsVector.size());
                     sendLoginMessage(login);
                 } else if (obj instanceof Register) {
                     Register register = (Register) obj;
                     clientsVector.put(register.getUserName(), this);
+                    System.out.println(clientsVector.size());
+
                     sendRegisterMessage(register);
                 } else if (obj instanceof Connection) {
                     Connection connection = (Connection) obj;
                     //System.out.println(connection.getSignal());
                     sendSocketToIPScreen(connection);
+                    System.out.println("connection done ");
 
                 } else if (obj instanceof LogOut) {
                     LogOut logOut = (LogOut) obj;
                     sendLogOutMessage(logOut);
                     clientsVector.remove(logOut.getUserName());
 
-                } else if(obj instanceof RequestTopPlayers){
-                    getTopPlayers((RequestTopPlayers)obj);
-                }else if (obj instanceof RequestGame) {
+                } else if (obj instanceof RequestProfileBase) {
+
+                    try {
+                        getPlayersProfile((RequestProfileBase) obj);
+                    } catch (SQLException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else if (obj instanceof RequestGame) {
                     RequestGame requestGame = (RequestGame) obj;
                     switch (requestGame.getGameResponse()) {
                         case RequestGame.requestGame:
                             // server send it 
-                            sendToUser(requestGame.getChoosePlayerUserName(), requestGame);
+                            System.out.println("request fom client to server: " + requestGame.getChoosePlayerUserName());
+
+                            sendRequestToUser(requestGame.getChoosePlayerUserName(), requestGame);
+
                             break;
                         case RequestGame.acceptChallenge:
-                            sendToUser(requestGame.getRequstedUserName(), requestGame);
+                            System.out.println("3");
+                            sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
                             break;
                         case RequestGame.refuseChallenge:
-                            sendToUser(requestGame.getRequstedUserName(), requestGame);
+                            System.out.println("4");
+                            sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
                             break;
                     }
 
                 }
 
-                
-
+            } catch (StreamCorruptedException ex) {
+                ex.printStackTrace();
             } catch (EOFException EX) {
                 try {
                     is.close();
@@ -134,12 +152,6 @@ public class Client extends Thread {
                 } catch (IOException ex1) {
                     Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex1);
                 }
-                try {
-                    cs.close();
-                } catch (IOException ex1) {
-                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex1);
-                }
-
 
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -149,7 +161,7 @@ public class Client extends Thread {
         }
     }
 
-   void sendLoginMessage(Login login) {
+    void sendLoginMessage(Login login) {
         boolean status = false;
         playerDB = null;
         try {
@@ -162,10 +174,20 @@ public class Client extends Thread {
             } else {
                 status = false;
             }
-            sendToUser(login.getUserName(), playerDB);
-            if (!status) {
-                clientsVector.remove(login.getUserName());
-            }
+            //       sendToUser(login.getUserName(), playerDB);
+            clientsVector.entrySet().stream()
+                    .filter(item -> item.getKey().equals(playerLogin.getUserName()))
+                    .forEach((item) -> {
+                        try {
+                            // objectOutputStream = new ObjectOutputStream(os);
+                            objectOutputStream.writeObject(playerDB);
+                            objectOutputStream.flush();
+                        } catch (SocketException ex) {
+                            closeConnection();
+                        } catch (IOException ex) {
+                            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    });
         } catch (SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -190,10 +212,23 @@ public class Client extends Thread {
                 status = false;
                 playerDB = null;
             }
-            sendToUser(p.getUserName(), playerDB);
-            if (!status) {
-                clientsVector.remove(p.getUserName());
-            }
+            //sendToUser(p.getUserName(), playerDB);
+            clientsVector.entrySet().stream()
+                    .filter(item -> item.getKey().equals(p.getUserName()))
+                    .forEach((item) -> {
+                        try {
+                            // objectOutputStream = new ObjectOutputStream(os);
+                            objectOutputStream.writeObject(playerDB);
+                            objectOutputStream.flush();
+                        } catch (SocketException ex) {
+                            closeConnection();
+                        } catch (IOException ex) {
+                            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    });
+//            if (!status) {
+//                clientsVector.remove(p.getUserName());
+//            }
         } catch (SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -204,7 +239,7 @@ public class Client extends Thread {
         connection = new Connection(1, 1);
         // check if it exist in DB
         try {
-            objectOutputStream = new ObjectOutputStream(os);
+            // objectOutputStream = new ObjectOutputStream(os);
             objectOutputStream.writeObject(connection);
         } catch (IOException ex) {
             Logger.getLogger(Client.class
@@ -212,23 +247,24 @@ public class Client extends Thread {
         }
 
     }
-    void getTopPlayers(RequestTopPlayers r){
+
+    void getPlayersProfile(RequestProfileBase r) throws SQLException {
         r.setTopPlayers(dataAccessLayer.getTopPlayer());
+        r.setOnlinePlayer(dataAccessLayer.getAvailablePlayers());
         clientsVector.entrySet().stream()
-                .filter(item->item.getKey().equals(r.getPlayer_id()))
-                .forEach((item)->{
+                .filter(item -> item.getKey().equals(r.getPlayerUserName()))
+                .forEach((item) -> {
                     try {
-                        objectOutputStream = new ObjectOutputStream(os);
+                        // objectOutputStream = new ObjectOutputStream(os);
                         objectOutputStream.writeObject(r);
                         objectOutputStream.flush();
-                    } catch(SocketException ex){
+                    } catch (SocketException ex) {
                         closeConnection();
                     } catch (IOException ex) {
                         Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
     }
-
 
     void sendLogOutMessage(LogOut logOut) {
         logOut = new LogOut(logOut.getUserName(), 1);
@@ -241,7 +277,7 @@ public class Client extends Thread {
         }
 
         try {
-            objectOutputStream = new ObjectOutputStream(os);
+            //  objectOutputStream = new ObjectOutputStream(os);
             objectOutputStream.writeObject(logOut);
             objectOutputStream.flush();
 
@@ -251,24 +287,67 @@ public class Client extends Thread {
 
     }
 
+    public void sendToUser(String user, Object message) {
+        try {
+            Client s = clientsVector.get(user);
+            System.out.println(s);
+            s.objectOutputStream = new ObjectOutputStream(s.os);
+            s.objectOutputStream.writeObject(message);
+            s.objectOutputStream.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-public void sendToUser(String user, Object message) {
+//        clientsVector.entrySet().stream()
+//                .filter(item -> item.getKey().equals(user))
+//                .forEach((item) -> {
+//
+//                    try {
+//                    //    objectOutputStream = new ObjectOutputStream(os);
+//                        objectOutputStream.writeObject(message);
+//                        objectOutputStream.flush();
+//                        System.out.println("send to user Done");
+//                    } catch (IOException ex) {
+//
+//                    }
+//
+//                });
+    }
 
-        clientsVector.entrySet().stream()
-                .filter(item -> item.getKey().equals(user))
-                .forEach((item) -> {
+    public synchronized void sendRequestToUser(String user, RequestGame message) {
+        try {
+            Client s = clientsVector.get(user);
 
-                    try {
-                        objectOutputStream = new ObjectOutputStream(os);
-                        objectOutputStream.writeObject(message);
-                        objectOutputStream.flush();
-                    } catch (IOException ex) {
+//            System.out.println(s.cs);
+//            System.out.println(s.os);
+            // s.os=s.cs.getOutputStream();
+//            objectOutputStream = new ObjectOutputStream(s.os);
+//            System.out.println(s.objectOutputStream);
+            s.objectOutputStream.writeObject(message);
+            s.objectOutputStream.flush();
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
-                    }
-
-                });
-
+//        clientsVector.entrySet().stream()
+//                .filter(item -> item.getKey().equals(user))
+//                .forEach((item) -> {
+//
+//                    try {
+//                        System.out.println("234567898765432");
+//                        objectOutputStream = new ObjectOutputStream(item.getValue().os);
+//                       
+//                        objectOutputStream.writeObject(message);
+//                        objectOutputStream.flush();
+//                        System.out.println("send to user Done");
+//                    } catch (IOException ex) {
+//                        System.out.println("caaaaatch");
+//                         System.out.println(item.getValue().cs);
+//                    }
+//
+//                });
     }
 
 }
-

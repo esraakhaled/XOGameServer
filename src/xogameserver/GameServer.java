@@ -22,9 +22,10 @@ public class GameServer {
 
     public GameServer() {
         try {
-            serverSocket = new ServerSocket(8080);
+            serverSocket = new ServerSocket(5555);
             while (true) {
                 Socket s = serverSocket.accept();
+                System.out.println(s);
                 new Client(s);
             }
 
