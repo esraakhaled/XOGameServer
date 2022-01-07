@@ -18,13 +18,20 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.animation.PauseTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.util.Duration;
+import javafx.util.Pair;
 import serialize.models.LogOut;
 import serialize.models.Login;
 import serialize.models.Connection;
 import serialize.models.Player;
+import serialize.models.PlayingGame;
 import serialize.models.Register;
 import serialize.models.RequestGame;
 import serialize.models.RequestProfileBase;
+import serialize.models.RoomPlayer;
 import static xogameserver.Client.clientsVector;
 
 /**
@@ -40,8 +47,16 @@ public class Client extends Thread {
     ObjectOutputStream objectOutputStream;
     ObjectInputStream objectInputStream;
     DataAccessLayer dataAccessLayer;
+    Pair<String, Client> playerPair;
+    RoomPlayer roomPlayer;
+
+    int gameSessionId = -1;
+
+    static int serverRoom = 0;
     public static HashMap<String, Client> clientsVector = new HashMap<String, Client>();
-   //public static Map<String, Client> attempsUser = new HashMap<String, Client>();
+
+    public static HashMap<Integer, RoomPlayer> gameRooms = new HashMap<>();
+
     Player playerDB = null;
 
     public Client(Socket _cs) {
@@ -103,28 +118,80 @@ public class Client extends Thread {
                     LogOut logOut = (LogOut) obj;
                     sendLogOutMessage(logOut);
                     clientsVector.remove(logOut.getUserName());
+                    updateAvailableListPlayer();
 
                 } else if (obj instanceof RequestProfileBase) {
                     getPlayersProfile((RequestProfileBase) obj, this);
                 } else if (obj instanceof RequestGame) {
                     RequestGame requestGame = (RequestGame) obj;
+                    System.out.println(requestGame.getGameResponse());
                     switch (requestGame.getGameResponse()) {
                         case RequestGame.requestGame:
-                            // server send it 
-                            System.out.println("request fom client to server: " + requestGame.getChoosePlayerUserName());
-
+                            dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getRequstedUserName());
+                            dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getChoosePlayerUserName());
+                            PauseTransition pauseTransition = new PauseTransition(Duration.seconds(10));
+                            pauseTransition.setOnFinished(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    try {
+                                        dataAccessLayer.updatePlayerStatusAvailable(requestGame.getRequstedUserName());
+                                         dataAccessLayer.updatePlayerStatusAvailable(requestGame.getChoosePlayerUserName());
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                   
+                                }
+                            });
+                            pauseTransition.play();
+                            gameSessionId = ++serverRoom;
+                            requestGame.setGameRoom(gameSessionId);
+                            playerPair = new Pair<>(requestGame.getRequstedUserName(), this);
+                            RoomPlayer room = new RoomPlayer(playerPair);
+                            gameRooms.put(gameSessionId, room);
                             sendRequestToUser(requestGame.getChoosePlayerUserName(), requestGame);
+                            System.out.println("request fom client to server: " + requestGame.getGameRoom());
 
                             break;
                         case RequestGame.acceptChallenge:
-                            System.out.println("3");
+
+                               pauseTransition = new PauseTransition(Duration.seconds(10));
+                            pauseTransition.setOnFinished(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    try {
+                                        dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getRequstedUserName());
+                                         dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getChoosePlayerUserName());
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                   
+                                }
+                            });
+                            pauseTransition.play();
+                            gameSessionId = requestGame.getGameRoom();
+                            playerPair = new Pair<>(requestGame.getChoosePlayerUserName(), this);
+
+                            room = gameRooms.get(gameSessionId);
+                            room.setPlayerB(playerPair);
+                            gameRooms.put(gameSessionId, room);
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
+                            System.out.println("acceppt fom client to server: " + requestGame.getGameRoom());
+
                             break;
                         case RequestGame.refuseChallenge:
-                            System.out.println("4");
+
+                            dataAccessLayer.updatePlayerStatusAvailable(requestGame.getRequstedUserName());
+                            dataAccessLayer.updatePlayerStatusAvailable(requestGame.getChoosePlayerUserName());
+                            gameRooms.get(requestGame.getGameRoom()).getPlayerA().getValue().gameSessionId = -1;
+                            gameRooms.remove(requestGame.getGameRoom());
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
                             break;
+
                     }
+
+                } else if (obj instanceof PlayingGame) {
+                    PlayingGame playingGame = (PlayingGame) obj;
+                    gameRooms.get(playingGame.getRoomId());
 
                 }
 
@@ -154,6 +221,8 @@ public class Client extends Thread {
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -292,6 +361,7 @@ public class Client extends Thread {
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     public synchronized void sendRequestToUser(String user, RequestGame message) {
@@ -304,6 +374,10 @@ public class Client extends Thread {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
     }
 
+    public void sendMoveToPlayer(int roomId) {
+
+    }
 }

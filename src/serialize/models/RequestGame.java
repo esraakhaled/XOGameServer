@@ -12,6 +12,15 @@ public class RequestGame implements Serializable{
     public static final int refuseChallenge = 2;
     String player1 , player2;
     int gameResponse;
+    int gameRoom=-1;
+
+    public int getGameRoom() {
+        return gameRoom;
+    }
+
+    public void setGameRoom(int gameRoom) {
+        this.gameRoom = gameRoom;
+    }
 
     public RequestGame(String player1, String player2, int gameResponse) {
         this.player1 = player1;
