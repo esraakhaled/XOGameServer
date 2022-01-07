@@ -18,13 +18,16 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.util.Pair;
 import serialize.models.LogOut;
 import serialize.models.Login;
 import serialize.models.Connection;
 import serialize.models.Player;
+import serialize.models.PlayingGame;
 import serialize.models.Register;
 import serialize.models.RequestGame;
 import serialize.models.RequestProfileBase;
+import serialize.models.RoomPlayer;
 import static xogameserver.Client.clientsVector;
 
 /**
@@ -40,8 +43,14 @@ public class Client extends Thread {
     ObjectOutputStream objectOutputStream;
     ObjectInputStream objectInputStream;
     DataAccessLayer dataAccessLayer;
+    Pair<String, Client> playerPair;
+    RoomPlayer roomPlayer;
+
+    int gameSessionId = -1;
+
+    static int serverRoom = 0;
     public static HashMap<String, Client> clientsVector = new HashMap<String, Client>();
-    // public static Map<String, Client> attempsUser = new HashMap<String, Client>();
+    public static HashMap<Integer, RoomPlayer> gameRooms = new HashMap<>();
     Player playerDB = null;
 
     public Client(Socket _cs) {
@@ -113,21 +122,43 @@ public class Client extends Thread {
                     switch (requestGame.getGameResponse()) {
                         case RequestGame.requestGame:
                             // server send it 
-                            System.out.println("request fom client to server: " + requestGame.getChoosePlayerUserName());
-
+// give it  room id to player to
+                            gameSessionId = ++serverRoom;
+                            requestGame.setGameRoom(gameSessionId);
+                            playerPair = new Pair<>(requestGame.getRequstedUserName(), this);
+                            RoomPlayer room = new RoomPlayer(playerPair);
+                            gameRooms.put(gameSessionId, room);
                             sendRequestToUser(requestGame.getChoosePlayerUserName(), requestGame);
+                            System.out.println("request fom client to server: " + requestGame.getGameRoom());
 
                             break;
                         case RequestGame.acceptChallenge:
-                            System.out.println("3");
+                            // request accept contain room id 
+                            gameSessionId=requestGame.getGameRoom();
+                            playerPair = new Pair<>(requestGame.getChoosePlayerUserName(), this);
+                         
+                            room = gameRooms.get(gameSessionId);
+                            
+                            room.setPlayerB(playerPair);
+                            gameRooms.put(gameSessionId, room);
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
+                            System.out.println("acceppt fom client to server: " + requestGame.getGameRoom());
+
                             break;
                         case RequestGame.refuseChallenge:
-                            System.out.println("4");
+                            // refuse from chooser contain room id
+                            // in game session is requested we want to dlete it and make it availaba
+                            // update gameSession to make him available
+                            gameRooms.get(requestGame.getGameRoom()).getPlayerA().getValue().gameSessionId=-1;
+                            gameRooms.remove(requestGame.getGameRoom());                         
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
                             break;
                     }
 
+                }else if(obj instanceof PlayingGame){
+                    PlayingGame playingGame =(PlayingGame)obj;
+                    gameRooms.get(playingGame.getRoomId());
+                
                 }
 
             } catch (StreamCorruptedException ex) {
@@ -331,23 +362,8 @@ public class Client extends Thread {
             ex.printStackTrace();
         }
 
-//        clientsVector.entrySet().stream()
-//                .filter(item -> item.getKey().equals(user))
-//                .forEach((item) -> {
-//
-//                    try {
-//                        System.out.println("234567898765432");
-//                        objectOutputStream = new ObjectOutputStream(item.getValue().os);
-//                       
-//                        objectOutputStream.writeObject(message);
-//                        objectOutputStream.flush();
-//                        System.out.println("send to user Done");
-//                    } catch (IOException ex) {
-//                        System.out.println("caaaaatch");
-//                         System.out.println(item.getValue().cs);
-//                    }
-//
-//                });
     }
-
+    public void sendMoveToPlayer(int roomId){
+    
+    }
 }
