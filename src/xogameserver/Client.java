@@ -18,6 +18,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.animation.PauseTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.util.Duration;
 import javafx.util.Pair;
 import serialize.models.LogOut;
 import serialize.models.Login;
@@ -122,8 +126,22 @@ public class Client extends Thread {
                     System.out.println(requestGame.getGameResponse());
                     switch (requestGame.getGameResponse()) {
                         case RequestGame.requestGame:
-                            // server send it 
-// give it  room id to player to
+                            dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getRequstedUserName());
+                            dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getChoosePlayerUserName());
+                            PauseTransition pauseTransition = new PauseTransition(Duration.seconds(10));
+                            pauseTransition.setOnFinished(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    try {
+                                        dataAccessLayer.updatePlayerStatusAvailable(requestGame.getRequstedUserName());
+                                         dataAccessLayer.updatePlayerStatusAvailable(requestGame.getChoosePlayerUserName());
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                   
+                                }
+                            });
+                            pauseTransition.play();
                             gameSessionId = ++serverRoom;
                             requestGame.setGameRoom(gameSessionId);
                             playerPair = new Pair<>(requestGame.getRequstedUserName(), this);
@@ -134,12 +152,25 @@ public class Client extends Thread {
 
                             break;
                         case RequestGame.acceptChallenge:
-                            // request accept contain room id 
+
+                               pauseTransition = new PauseTransition(Duration.seconds(10));
+                            pauseTransition.setOnFinished(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    try {
+                                        dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getRequstedUserName());
+                                         dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getChoosePlayerUserName());
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                   
+                                }
+                            });
+                            pauseTransition.play();
                             gameSessionId = requestGame.getGameRoom();
                             playerPair = new Pair<>(requestGame.getChoosePlayerUserName(), this);
 
                             room = gameRooms.get(gameSessionId);
-
                             room.setPlayerB(playerPair);
                             gameRooms.put(gameSessionId, room);
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
@@ -147,11 +178,14 @@ public class Client extends Thread {
 
                             break;
                         case RequestGame.refuseChallenge:
+
+                            dataAccessLayer.updatePlayerStatusAvailable(requestGame.getRequstedUserName());
+                            dataAccessLayer.updatePlayerStatusAvailable(requestGame.getChoosePlayerUserName());
                             gameRooms.get(requestGame.getGameRoom()).getPlayerA().getValue().gameSessionId = -1;
                             gameRooms.remove(requestGame.getGameRoom());
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
                             break;
-                        
+
                     }
 
                 } else if (obj instanceof PlayingGame) {
@@ -186,6 +220,8 @@ public class Client extends Thread {
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -328,31 +364,11 @@ public class Client extends Thread {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-//        clientsVector.entrySet().stream()
-//                .filter(item -> item.getKey().equals(user))
-//                .forEach((item) -> {
-//
-//                    try {
-//                    //    objectOutputStream = new ObjectOutputStream(os);
-//                        objectOutputStream.writeObject(message);
-//                        objectOutputStream.flush();
-//                        System.out.println("send to user Done");
-//                    } catch (IOException ex) {
-//
-//                    }
-//
-//                });
     }
 
     public synchronized void sendRequestToUser(String user, RequestGame message) {
         try {
             Client s = clientsVector.get(user);
-
-//            System.out.println(s.cs);
-//            System.out.println(s.os);
-            // s.os=s.cs.getOutputStream();
-//            objectOutputStream = new ObjectOutputStream(s.os);
-//            System.out.println(s.objectOutputStream);
             s.objectOutputStream.writeObject(message);
             s.objectOutputStream.flush();
         } catch (SocketException ex) {
