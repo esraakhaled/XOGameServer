@@ -16,7 +16,15 @@ public class PlayingGame implements Serializable{
     private int roomId;
     private String targetuser;
     private Button playedButton;
-    
+    boolean flag=true;
+
+    public boolean isFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
+    }
     public PlayingGame(int roomId,String targetUser,Button playedButton){
         this.roomId=roomId;
         this.targetuser=targetUser;
