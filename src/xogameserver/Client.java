@@ -119,6 +119,7 @@ public class Client extends Thread {
                     }
                 } else if (obj instanceof RequestGame) {
                     RequestGame requestGame = (RequestGame) obj;
+                    System.out.println(requestGame.getGameResponse());
                     switch (requestGame.getGameResponse()) {
                         case RequestGame.requestGame:
                             // server send it 
@@ -134,11 +135,11 @@ public class Client extends Thread {
                             break;
                         case RequestGame.acceptChallenge:
                             // request accept contain room id 
-                            gameSessionId=requestGame.getGameRoom();
+                            gameSessionId = requestGame.getGameRoom();
                             playerPair = new Pair<>(requestGame.getChoosePlayerUserName(), this);
-                         
+
                             room = gameRooms.get(gameSessionId);
-                            
+
                             room.setPlayerB(playerPair);
                             gameRooms.put(gameSessionId, room);
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
@@ -146,19 +147,17 @@ public class Client extends Thread {
 
                             break;
                         case RequestGame.refuseChallenge:
-                            // refuse from chooser contain room id
-                            // in game session is requested we want to dlete it and make it availaba
-                            // update gameSession to make him available
-                            gameRooms.get(requestGame.getGameRoom()).getPlayerA().getValue().gameSessionId=-1;
-                            gameRooms.remove(requestGame.getGameRoom());                         
+                            gameRooms.get(requestGame.getGameRoom()).getPlayerA().getValue().gameSessionId = -1;
+                            gameRooms.remove(requestGame.getGameRoom());
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
                             break;
+                        
                     }
 
-                }else if(obj instanceof PlayingGame){
-                    PlayingGame playingGame =(PlayingGame)obj;
+                } else if (obj instanceof PlayingGame) {
+                    PlayingGame playingGame = (PlayingGame) obj;
                     gameRooms.get(playingGame.getRoomId());
-                
+
                 }
 
             } catch (StreamCorruptedException ex) {
@@ -363,7 +362,8 @@ public class Client extends Thread {
         }
 
     }
-    public void sendMoveToPlayer(int roomId){
-    
+
+    public void sendMoveToPlayer(int roomId) {
+
     }
 }
