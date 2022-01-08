@@ -130,6 +130,7 @@ public class Client extends Thread {
                             dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getRequstedUserName());
                             dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getChoosePlayerUserName());
                             PauseTransition pauseTransition = new PauseTransition(Duration.seconds(10));
+                            
                             pauseTransition.setOnFinished(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
@@ -153,7 +154,7 @@ public class Client extends Thread {
 
                             break;
                         case RequestGame.acceptChallenge:
-
+                                
                                pauseTransition = new PauseTransition(Duration.seconds(10));
                             pauseTransition.setOnFinished(new EventHandler<ActionEvent>() {
                                 @Override
@@ -179,6 +180,7 @@ public class Client extends Thread {
 
                             break;
                         case RequestGame.refuseChallenge:
+                            updateAvailableListPlayer();
 
                             dataAccessLayer.updatePlayerStatusAvailable(requestGame.getRequstedUserName());
                             dataAccessLayer.updatePlayerStatusAvailable(requestGame.getChoosePlayerUserName());

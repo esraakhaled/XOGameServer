@@ -408,11 +408,19 @@ public class ServerGUI extends GridPane {
 
         XYChart.Series seriesOnline = new XYChart.Series();
         seriesOnline.setName("Online");
-        seriesOnline.getData().add(new XYChart.Data("Online", 25));
+        try {
+            seriesOnline.getData().add(new XYChart.Data("Online", dataAccessLayer.getPlayersOnlineNum()));
+        } catch (SQLException ex) {
+            Logger.getLogger(ServerGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         XYChart.Series seriesOffline = new XYChart.Series();
         seriesOffline.setName("Offline");
-        seriesOffline.getData().add(new XYChart.Data("Offline", 10));
+        try {
+            seriesOffline.getData().add(new XYChart.Data("Offline", dataAccessLayer.getPlayersOfflineNum()));
+        } catch (SQLException ex) {
+            Logger.getLogger(ServerGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
         bc.getData().addAll(seriesOnline, seriesOffline);
 
     }
