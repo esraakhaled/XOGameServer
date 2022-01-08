@@ -1,4 +1,4 @@
-package serialize.models;
+package serialize.serizationModels;
 
 import java.io.Serializable;
 

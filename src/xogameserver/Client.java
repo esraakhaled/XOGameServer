@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.StreamCorruptedException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.sql.SQLException;
@@ -85,13 +84,15 @@ public class Client extends Thread {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    private void updateAvailableListPlayer(){
+
+    private void updateAvailableListPlayer() {
         System.out.println("update profile");
-        clientsVector.entrySet().stream().forEach((item)->{
-            getPlayersProfile(new RequestProfileBase(item.getKey(),null,null), item.getValue());
+        clientsVector.entrySet().stream().forEach((item) -> {
+            getPlayersProfile(new RequestProfileBase(item.getKey(), null, null), item.getValue());
             System.out.println("entry set");
         });
     }
+
     public void run() {
         while (true) {
             try {
@@ -129,18 +130,20 @@ public class Client extends Thread {
                         case RequestGame.requestGame:
                             dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getRequstedUserName());
                             dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getChoosePlayerUserName());
+                            updateAvailableListPlayer();
                             PauseTransition pauseTransition = new PauseTransition(Duration.seconds(10));
-                            
+
                             pauseTransition.setOnFinished(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
                                     try {
                                         dataAccessLayer.updatePlayerStatusAvailable(requestGame.getRequstedUserName());
-                                         dataAccessLayer.updatePlayerStatusAvailable(requestGame.getChoosePlayerUserName());
+                                        dataAccessLayer.updatePlayerStatusAvailable(requestGame.getChoosePlayerUserName());
+                                        updateAvailableListPlayer();
                                     } catch (SQLException ex) {
                                         ex.printStackTrace();
                                     }
-                                   
+
                                 }
                             });
                             pauseTransition.play();
@@ -154,25 +157,28 @@ public class Client extends Thread {
 
                             break;
                         case RequestGame.acceptChallenge:
-                                
-                               pauseTransition = new PauseTransition(Duration.seconds(10));
+
+                            pauseTransition = new PauseTransition(Duration.seconds(10));
                             pauseTransition.setOnFinished(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
                                     try {
                                         dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getRequstedUserName());
-                                         dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getChoosePlayerUserName());
+                                        dataAccessLayer.updatePlayerStatusNotAvailable(requestGame.getChoosePlayerUserName());
+                                        updateAvailableListPlayer();
                                     } catch (SQLException ex) {
                                         ex.printStackTrace();
                                     }
-                                   
+
                                 }
                             });
                             pauseTransition.play();
+
                             gameSessionId = requestGame.getGameRoom();
                             playerPair = new Pair<>(requestGame.getChoosePlayerUserName(), this);
 
                             room = gameRooms.get(gameSessionId);
+
                             room.setPlayerB(playerPair);
                             gameRooms.put(gameSessionId, room);
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
@@ -180,10 +186,12 @@ public class Client extends Thread {
 
                             break;
                         case RequestGame.refuseChallenge:
-                            updateAvailableListPlayer();
+
+                            
 
                             dataAccessLayer.updatePlayerStatusAvailable(requestGame.getRequstedUserName());
                             dataAccessLayer.updatePlayerStatusAvailable(requestGame.getChoosePlayerUserName());
+                            updateAvailableListPlayer();
                             gameRooms.get(requestGame.getGameRoom()).getPlayerA().getValue().gameSessionId = -1;
                             gameRooms.remove(requestGame.getGameRoom());
                             sendRequestToUser(requestGame.getRequstedUserName(), requestGame);
@@ -192,13 +200,14 @@ public class Client extends Thread {
                     }
 
                 } else if (obj instanceof PlayingGame) {
+
                     PlayingGame playingGame = (PlayingGame) obj;
-                    gameRooms.get(playingGame.getRoomId());
+                    sendMoveToPlayer(playingGame.getRoomId(), playingGame);
+
+                    System.out.println("send Model from server to client");
 
                 }
 
-            } catch (StreamCorruptedException ex) {
-                ex.printStackTrace();
             } catch (EOFException EX) {
                 try {
                     is.close();
@@ -209,6 +218,12 @@ public class Client extends Thread {
                     Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } catch (SocketException ex) {
+                //check first
+                if (gameSessionId != -1) {
+                    tellTheOtherPlayer(gameSessionId, this, obj);
+                    // change his gameSessionId
+
+                }
                 try {
                     //  objectOutputStream.close();
                     //  is.close();
@@ -217,15 +232,18 @@ public class Client extends Thread {
                     this.stop();
 
                 } catch (IOException ex1) {
-                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex1);
+                    ex1.printStackTrace();
                 }
 
             } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             } catch (ClassNotFoundException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+
+                ex.printStackTrace();
             } catch (SQLException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+
+                ex.printStackTrace();
+
             }
         }
     }
@@ -311,7 +329,7 @@ public class Client extends Thread {
         }
     }
 
-    void getPlayersProfile(RequestProfileBase r,Client c)  {
+    void getPlayersProfile(RequestProfileBase r, Client c) {
         r.setTopPlayers(dataAccessLayer.getTopPlayer());
         try {
             r.setOnlinePlayer(dataAccessLayer.getAvailablePlayers());
@@ -379,7 +397,81 @@ public class Client extends Thread {
 
     }
 
-    public void sendMoveToPlayer(int roomId) {
+    public void sendMoveToPlayer(int roomId, PlayingGame playingGame) {
+
+        RoomPlayer room = gameRooms.get(roomId);
+        Client playerClient = null;
+        if (room.getPlayerA().getKey().equals(playingGame.getTargetuser())) {
+            playerClient = room.getPlayerA().getValue();
+            System.out.println(room.getPlayerA().getKey() + "A");
+
+        } else if (room.getPlayerB().getKey().equals(playingGame.getTargetuser())) {
+            playerClient = room.getPlayerB().getValue();
+            System.out.println(room.getPlayerB().getKey() + "B");
+
+        } else {
+            System.out.println("problem");
+        }
+        if (playerClient != null) {
+            try {
+                playerClient.objectOutputStream.writeObject(playingGame);
+                playerClient.objectOutputStream.flush();
+            } catch (SocketException ex) {
+                // check if one go away
+                playingGame.setFlag(false);
+                if (playerClient == room.getPlayerA().getValue()) {
+                    playerClient = room.getPlayerB().getValue();
+
+                } else if (playerClient == room.getPlayerB().getValue()) {
+                    playerClient = room.getPlayerB().getValue();
+                }
+
+                try {
+                    playerClient.objectOutputStream.writeObject(playingGame);
+                } catch (IOException ex1) {
+                    ex1.printStackTrace();
+                }
+
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+        }
+
+    }
+
+    public void tellTheOtherPlayer(int roomId, Client closed, Object obj) {
+        PlayingGame playingGame = (PlayingGame) obj;
+        RoomPlayer room = gameRooms.get(roomId);
+        Client playerClient = null;
+        if (room.getPlayerA().getValue() == closed) {
+            playerClient = room.getPlayerB().getValue();
+        } else if (room.getPlayerB().getValue() == closed) {
+            playerClient = room.getPlayerA().getValue();
+        }
+        if (playerClient != null) {
+            playingGame.setFlag(false);
+            try {
+                playerClient.objectOutputStream.writeObject(playingGame);
+                playerClient.objectOutputStream.flush();
+            } catch (SocketException ex) {
+                try {
+                    // all of them is closed
+                    room.getPlayerA().getValue().objectInputStream.close();
+                    room.getPlayerA().getValue().objectOutputStream.close();
+                    //
+                    room.getPlayerB().getValue().objectInputStream.close();
+                    room.getPlayerB().getValue().objectOutputStream.close();
+                } catch (IOException ex1) {
+                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+        }
 
     }
 }
